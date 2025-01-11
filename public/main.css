@@ -1,0 +1,156 @@
+body {
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body > * {
+    padding: 10px;
+}
+
+#background {
+    padding: 0px;
+    margin: 0px;
+    height: 100vh;
+    width: 100vw;
+    background-color: #420084;
+    background-image: linear-gradient(0deg, #420084, #5836a0);
+    position:fixed;
+    x: center;
+    y: center;
+    -ms-perspective-origin-x:center;
+    -ms-perspective-origin-y:center;
+    z-index: -1;
+}
+
+.formDiv {
+    display: flex;
+    flex-direction: row;
+}
+
+.formDiv > * {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.form {
+    width: 200px;
+    margin-bottom: 8px;
+}
+
+#title {
+    font-size: 70px;
+    justify-self: center;
+    justify-content: center;
+    align-self: center;
+    align-content: center;
+    display: flex;
+    flex-direction: row;
+}
+
+img {
+    justify-self: center;
+    justify-content: center;
+    align-self: center;
+    align-content: center;
+}
+
+#logo {
+    margin-left: 20px;
+    width: 100px;
+    height: 100px;
+}
+
+#avatar {
+    margin-left: 20px;
+    border-radius: 999999rem;
+    width: 35px;
+    height: 35px;
+}
+
+h1 {
+    font-size: inherit;
+}
+
+#userInfo {
+    display: flex;
+    flex-direction: row;
+}
+
+#statusInput {
+    width: 25px;
+}
+
+@media (min-width: 1100px) {
+    body {
+        width: 1100px
+    }
+}
+
+a {
+    color: inherit;
+}
+
+.blob {
+    background-color: #8000ff;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    border-radius: 0.375rem;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.border {
+    border-width: 3px;
+    border-color: #420084;
+    border-style: solid;
+}
+
+button:hover {
+    background-color: #b030ff;
+}
+
+a:hover {
+    color: #bf6fff;
+}
+
+.bg-discord-blue {
+    --tw-bg-opacity: 1;
+    background-color: rgb(114 137 218 / var(--tw-bg-opacity));
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    border-radius: 0.375rem;
+}
+
+.bg-discord-blue:hover {
+    background-color: rgb(84 107 188 / var(--tw-bg-opacity));
+}
+
+.hovertext > * {
+    display: none;
+}
+
+.hovertext:hover > * { 
+    display: flex;
+    background-color: #8000ffb0;
+}
+
+@media (min-width: 710px) {
+    .hovertext:hover>* {
+        position: absolute;
+        y: inherit;
+        x: inherit;
+        left: 440px;
+        bottom: 82px;
+        width: max(min(calc(100vw - 500px), calc(1100px - 500px)), 100px);
+    }
+}

@@ -22,30 +22,27 @@
     <meta property="og:image" content="./garticBeep.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./garticBeep.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="./garticBeep.png" />
-    <!-- <style type="text/css"> -->
+    <link rel="stylesheet" href="main.css" />
 </head>
 <body>
-    <h1>Gartic Beep!</h1>
+    <div id="title">
+        <h1>Gartic Beep!</h1>
+        <img id="logo" src = "garticBeep.png">
+    </div>
+    
     <div>
-        <label>Discord Username: </label><input type="text" id="usernameInput" required/>
-        <label>Password: </label><input  type="password" id="passwordInput" required/>
-        <label>Initial Prompt: </label><input type="text" id="promptInput" required />
-        <label>On hold?: </label><input type="checkbox" id="statusInput" required />
-        <p>Being on hold means that you can volunteer to submit for empty chains, <br>
-            whereas leaving the checkbox unchecked means that you will submit for every round</p>
+        <h3 class="blob">What is Gartic Beep?</h3>
+        <p class="blob">Gartic Beep is similar to the game telephone. There will be five rounds each with two phases. In the first phase you will create a prompt, and then in the second phase you will design a short song based on that prompt. In the next round, you'll try to figure out what the original prompt of the song was, and then that gets sent to a new person to make a song based on that. In the last round you'll have a bit more time to create a song if you want to put a bit more effort into it. After everything is done, you'll get to see how prompts evolved over the event and all of the cool songs that came from it. </p>
     </div>
     <div>
-        <button onclick="signup()">Sign up</button>
+        <a id="login" href="https://discord.com/oauth2/authorize?client_id=1327041279917424840&response_type=token&redirect_uri=http%3A%2F%2F127.0.0.1%3A4000%2Fauth%2Fdiscord&scope=identify"
+            class="bg-discord-blue">
+            <span>Login with Discord</span>
+        </a>
     </div>
+    <br>
+    <footer>
+        <a class="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
+    </footer>
+    <div id="background"></div>
 </body>
-<script>
-    function signup() {
-        const usernameElement = document.getElementById("usernameInput");
-        const passwordElement = document.getElementById("passwordInput");
-        const promptElement = document.getElementById("promptInput");
-        const statusCheckbox = document.getElementById("statusInput");
-        if(usernameElement.value && passwordElement.value && promptElement.value) {
-            window.location.href = "./home.html";
-        }
-    }
-</script>

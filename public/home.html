@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel='shortcut icon' type='image/x-icon' href='./garticBeep.ico' />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gartic Beep</title>
+    <meta name="application-name" content="Gartic Beep" />
+    <meta name="apple-mobile-web-app-title" content="Gartic Beep">
+    <meta name="description"
+        content="Gartic Beep is an event hosted by the Beepbox Discord. This is the website used to organize that" />
+    <meta name="keywords"
+        content="slarmoosbox, ultrabox, beepbox, jummbox, pandorasbox, modbox, sandbox, goldbox, wackybox, todbox, abyssbox" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#420084" />
+    <meta name="msapplication-TileColor" content="#420084" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta property="og:image" content="./garticBeep.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./garticBeep.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./garticBeep.png" />
+    <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+    <div id="title">
+        <h1>Gartic Beep!</h1>
+        <img id="logo" src="garticBeep.png">
+    </div>
+    <div>
+        <div id="userInfo" class="blob">
+            <p id="username"></p>
+            <img id="avatar">
+        </div>
+        <h3 class="blob" id="eventTime">The event will start in <span id="timeLeft">XX days</span></h3>
+    </div>
+    <div id="register">
+        <div id="formWrapper">
+            <div class="blob">
+                <div>
+                    <label>Initial prompt: </label>
+                    <input type="text" required class="form" id="initialPrompt">
+                    <label class="hovertext">?<span class="blob border">Your initial prompt should be clear and concise. You should not 
+                        include music theory, obscure references, instrumentation, length, or any other descriptor of song construction. 
+                        A few good examples are "A whale battling a shark", "A cat playing with yarn", "dumpster diving with your 
+                        friends", or "an abandoned spaceship" </span></label>
+                </div>
+                <div>
+                    <label>On hold?</label>
+                    <input type="checkbox" id="statusInput" required class="form" checked="false" />
+                    <label class="hovertext">?<span class="blob border">Being on hold means that you can volunteer to submit for empty 
+                        chains, <br>whereas leaving the checkbox unchecked means that you will submit for every round</span></label>
+                </div>
+                <div>
+                    <button  class="blob border" onclick="register()">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="submitSong" style="display: none">
+        <div id="formWrapper">
+            <div class="blob">
+                <h4>Round <span id="roundNumber"></span></h4>
+                <h4>Prompt: <span id="promptDisplay"></span></h4>
+            </div>
+            <div class="blob">
+                
+                <div>
+                    <label>Song title: </label>
+                    <input type="text" class="form" id="songNameInput">
+                    <label class="hovertext">?<span class="blob border">This is optional. Feel free to submit a title if you wish. 
+                        Please make sure that your link does not include a title however, as this can influence the next person in the 
+                        chain </span></label>
+                </div>
+                <div>
+                    <label>Song link: </label>
+                    <input type="text" class="form" id="linkInput">
+                    <label class="hovertext">?<span class="blob border">Please include a valid shortened link to beepbox or one of its mods </span></label>
+                </div>
+                <div>
+                    <button class="blob border" onclick="submitSong()">Submit</button>
+                    <label class="hovertext">?<span class="blob border">You can submit as many times as you need up until the deadline. <br>
+                        Just be sure to always include a song link when submitting, as an empty field will still overwrite the database </span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="background"></div>
+    <br>
+    <div>
+        <a id="logout" href="/" class="blob">
+            <span>Logout</span>
+        </a>
+    </div>
+    <br>
+    <footer>
+        <a class="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
+    </footer>
+    <br>
+</body>
+<script>
+    let thisUsername;
+    let thisPrompt = "jellyfish in the abyss";
+    let thisRound;
+
+    const eventDates = {
+        round1a: [1, 1, 0], //february first at midnight utc
+        round1b: [1, 4, 0], //february fourth at midnight utc
+        round2a: [1, 6, 0], //february sixth at midnight utc
+        round2b: [1, 9, 0], //february ninth at midnight utc
+        round3a: [1, 11, 0], //february first at midnight utc
+        round3b: [1, 14, 0], //february fourth at midnight utc
+        round4a: [1, 16, 0], //february first at midnight utc
+        round4b: [1, 19, 0], //february fourth at midnight utc
+        round5a: [1, 21, 0], //february sixth at midnight utc
+        round5b: [1, 24, 0], //february ninth at midnight utc
+        eventEnd: [2, 3, 0], //march third at midnight utc 
+    }
+
+    window.onload = () => {
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
+            document.getElementById('statusInput').checked = false;
+
+            if (!accessToken) {
+                window.location.href('/');
+            }
+
+            fetch('https://discord.com/api/users/@me', {
+            headers: {
+                authorization: `${tokenType} ${accessToken}`,
+            },
+        })
+            .then(result => result.json())
+            .then(response => {
+                const { username, discriminator, avatar, id } = response;
+                //set the welcome username string
+                document.getElementById('username').innerText = ` ${username}`;
+                thisUsername = username;
+
+                //set the avatar image by constructing a url to access discord's cdn
+                document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${id}/${avatar}.jpg`;
+            })
+            .then(() => getRound())
+            // .then(() => randomize())
+            .then(() => setPage())
+            .catch(console.error);
+        };
+
+    function determineTime(eventMonth, eventDay, eventHour) {
+        //get Date
+        const date = new Date();
+        const day = date.getDate();
+        const month = date.getUTCMonth();
+        const hour = date.getUTCHours();
+        const timeElement = document.getElementById("timeLeft");
+        function monthDays() {
+            const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let days = 0;
+            for(i = month; i < eventMonth; i++) {
+                days += daysPerMonth[i];
+            }
+            return days;
+        }
+        daysTotal = month == eventMonth ? eventDay - day : eventDay - day + monthDays();
+        timeElement.innerText = daysTotal + " days";
+        return daysTotal * 24 + hour;
+    }
+
+    function register() {
+        const statusElement = document.getElementById('statusInput');
+        const promptElement = document.getElementById('initialPrompt');
+        fetch("/startchain", {
+            method: 'post',
+            body: JSON.stringify({ username: thisUsername, onhold: statusElement.checked, prompt: promptElement.value }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        });
+    }
+
+    function submitSong() {
+        const linkElement = document.getElementById('linkInput');
+        // const promptElement = document.getElementById('initialPrompt');
+        const songNameElement = document.getElementById('songNameInput');
+        fetch("/appendSong", { 
+            method: 'post',
+            body: JSON.stringify({ username: thisUsername, round: thisRound, link: linkElement.value, name: songNameElement.value }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        });
+    }
+
+    function submitPrompt() {
+        // const linkElement = document.getElementById('linkInput');
+        const promptElement = document.getElementById('initialPrompt');
+        // const songNameElement = document.getElementById('songNameInput');
+        fetch("/appendPrompt", { 
+            method: 'post',
+            body: JSON.stringify({ username: thisUsername, round: thisRound, prompt: promptElement.value }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        });
+    }
+
+    function getRound() {
+        return new Promise((resolve, reject) => {
+            fetch('/roundNumber', {
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(result => result.json())
+            .then(response => {
+                thisRound = response.round;
+                document.getElementById('roundNumber').innerText = thisRound;
+                resolve();
+            })
+            .catch(console.error);
+        });
+    }
+
+    function randomize() {
+        return new Promise((resolve, reject) => {
+            fetch('/randomizeChains', {
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(result => result.json())
+            .then(response => {
+                console.log(response.r);
+                resolve();
+            })
+            .catch(console.error);
+        });
+    }
+
+    function getYourPrompt() { 
+        console.log({ username: thisUsername, round: thisRound });
+        fetch("/getPrompt", {
+            method: 'post',
+            body: JSON.stringify({ username: thisUsername, round: thisRound }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+        .then(result => result.json())
+        .then(response => {
+            thisPrompt = response.prompt;
+            document.getElementById('promptDisplay').innerText = thisPrompt;
+            console.log(thisPrompt);
+        })
+        .catch(console.error);
+    }
+
+    function setPage() {
+        const submitSongWrapper = document.getElementById('submitSong');
+        const registerWrapper = document.getElementById('register');
+        const eventTimeElement = document.getElementById('eventTime');
+        //dummy
+        if(determineTime(...eventDates["round1a"]) > 0) {
+            submitSongWrapper.style.display = "none";
+            registerWrapper.style.display = "";
+        } else {
+            submitSongWrapper.style.display = "";
+            registerWrapper.style.display = "none";
+            eventTimeElement.innerHTML = `Song submissions close in <span id="timeLeft">XX hours</span>`
+            const timeLeftElement = document.getElementById('timeLeft');
+            timeLeftElement.innerText = determineTime(...eventDates["round1b"]) + " hours";
+            getYourPrompt();
+        }
+    }   
+
+</script>
