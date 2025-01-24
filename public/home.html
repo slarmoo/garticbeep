@@ -11,7 +11,7 @@
     <meta name="description"
         content="Gartic Beep is an event hosted by the Beepbox Discord. This is the website used to organize that" />
     <meta name="keywords"
-        content="slarmoosbox, ultrabox, beepbox, jummbox, pandorasbox, modbox, sandbox, goldbox, wackybox, todbox, abyssbox" />
+        content="slarmoosbox, ultrabox, beepbox, jummbox, pandorasbox, modbox, sandbox, goldbox, wackybox, todbox, abyssbox, gartic, garticbeep, phone" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -55,6 +55,7 @@
                 </div>
                 <div>
                     <button  class="blob border" onclick="register()">Register</button>
+                    <label class="hovertext">?<span class="blob border">You can change your prompt or status as many times as you need up until the deadline. </span></label>
                 </div>
             </div>
         </div>
@@ -62,7 +63,7 @@
     <div id="submitSong" style="display: none">
         <div id="formWrapper">
             <div class="blob">
-                <h4>Round <span id="roundNumber"></span></h4>
+                <h4>Round <span class="roundNumber"></span></h4>
                 <h4>Prompt: <span id="promptDisplay"></span></h4>
             </div>
             <div class="blob">
@@ -87,7 +88,42 @@
             </div>
         </div>
     </div>
+    <div id="submitPrompt" style="display: none">
+        <div id="formWrapper">
+            <div class="blob">
+                <h4>Round <span class="roundNumber"></span></h4>
+                <h4>Song: <a id="songDisplay">Link</a></h4>
+            </div>
+            <div class="blob">
+                <div>
+                    <label>Prompt: </label>
+                    <input type="text" class="form" id="promptInput">
+                    <label class="hovertext">?<span class="blob border">Your prompt should be clear and concise, and should describe the
+                        tone of the piece, not the instrumentation or how similar it sounds to an ost. Only include a reference to
+                        something else if the piece explicitly makes said reference (ie, a "mario song" only if it includes a motif from
+                        a mario game) </span></label>
+                </div>
+                <div>
+                    <button class="blob border" onclick="submitPrompt()">Submit</button>
+                    <label class="hovertext">?<span class="blob border">You can submit as many times as you need up until
+                            the deadline </span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="onHold" style="display: none">
+        <div id="formWrapper">
+            <div class="blob">
+                <h4>Round <span class="roundNumber"></span></h4>
+                <h4>You're on hold. Below are some jobs that you can accept</h4>
+            </div>
+            <div class="blob">
+                
+            </div>
+        </div>
+    </div>
     <div id="background"></div>
+    <div id="feedbackWrapper" class="border"><span id="feedback">Feedback</span></div>
     <br>
     <div>
         <a id="logout" href="/" class="blob">
@@ -104,19 +140,21 @@
     let thisUsername;
     let thisPrompt = "jellyfish in the abyss";
     let thisRound;
+    let isOnHold;
 
     const eventDates = {
-        round1a: [1, 1, 0], //february first at midnight utc
-        round1b: [1, 4, 0], //february fourth at midnight utc
-        round2a: [1, 6, 0], //february sixth at midnight utc
-        round2b: [1, 9, 0], //february ninth at midnight utc
-        round3a: [1, 11, 0], //february first at midnight utc
-        round3b: [1, 14, 0], //february fourth at midnight utc
-        round4a: [1, 16, 0], //february first at midnight utc
-        round4b: [1, 19, 0], //february fourth at midnight utc
-        round5a: [1, 21, 0], //february sixth at midnight utc
-        round5b: [1, 24, 0], //february ninth at midnight utc
-        eventEnd: [2, 3, 0], //march third at midnight utc 
+        eventStart: { time: [0, 1, 0], type: "start" }, //january first at midnight utc
+        // round1a: { time: [0, 11, 0], type: "prompt" }, //february first at midnight utc
+        round1b: { time: [0, 3, 0], type: "song" }, //february fourth at midnight utc
+        round2a: { time: [1, 6, 0], type: "prompt" }, //february sixth at midnight utc
+        round2b: { time: [1, 9, 0], type: "song" }, //february ninth at midnight utc
+        round3a: { time: [1, 11, 0], type: "prompt" }, //february first at midnight utc
+        round3b: { time: [1, 14, 0], type: "song" }, //february fourth at midnight utc
+        round4a: { time: [1, 16, 0], type: "prompt" }, //february first at midnight utc
+        round4b: { time: [1, 19, 0], type: "song" }, //february fourth at midnight utc
+        round5a: { time: [1, 21, 0], type: "prompt" }, //february sixth at midnight utc
+        round5b: { time: [1, 24, 0], type: "song" }, //february ninth at midnight utc
+        eventEnd: { time: [2, 3, 0], type: "end" }, //march third at midnight utc 
     }
 
     window.onload = () => {
@@ -144,7 +182,7 @@
                 document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${id}/${avatar}.jpg`;
             })
             .then(() => getRound())
-            // .then(() => randomize())
+            .then(() => onHold())
             .then(() => setPage())
             .catch(console.error);
         };
@@ -155,6 +193,8 @@
         const day = date.getDate();
         const month = date.getUTCMonth();
         const hour = date.getUTCHours();
+        const minute = date.getUTCMinutes();
+        const second = date.getUTCSeconds();
         const timeElement = document.getElementById("timeLeft");
         function monthDays() {
             const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -166,7 +206,9 @@
         }
         daysTotal = month == eventMonth ? eventDay - day : eventDay - day + monthDays();
         timeElement.innerText = daysTotal + " days";
-        return daysTotal * 24 + hour;
+        const minutes = (59 - minute) < 10 ? ("0" + (59 - minute)) : ("" + 59 - minute);
+        const seconds = (59 - second) < 10 ? ("0" + (59 - second)) : ("" + 59 - second);
+        return [daysTotal * 24 + hour - eventHour, minutes, seconds];
     }
 
     function register() {
@@ -181,9 +223,26 @@
         });
     }
 
+    function onHold() {
+        return new Promise((resolve, reject) => {
+            fetch("/startchain", {
+                method: 'post',
+                body: JSON.stringify({ username: thisUsername }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(result => result.json())
+            .then(response => {
+                isOnHold = response.status;
+                resolve();
+            })
+            .catch(console.error);
+        });
+    }
+
     function submitSong() {
         const linkElement = document.getElementById('linkInput');
-        // const promptElement = document.getElementById('initialPrompt');
         const songNameElement = document.getElementById('songNameInput');
         fetch("/appendSong", { 
             method: 'post',
@@ -195,16 +254,30 @@
     }
 
     function submitPrompt() {
-        // const linkElement = document.getElementById('linkInput');
-        const promptElement = document.getElementById('initialPrompt');
-        // const songNameElement = document.getElementById('songNameInput');
+        const promptElement = document.getElementById('promptInput');
         fetch("/appendPrompt", { 
             method: 'post',
             body: JSON.stringify({ username: thisUsername, round: thisRound, prompt: promptElement.value }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
             },
-        });
+        })
+        .then(() => {
+            feedback("Submitted Prompt!", 2);
+        }).catch(console.error);
+    }
+
+    function feedback(text, timeout) {
+        document.getElementById("feedback").innerHTML = text;
+        const feedbackWrapper = document.getElementById("feedbackWrapper");
+        feedbackWrapper.style.opacity = 1;
+        const opacityInterval = setInterval(() => {
+            let opacity = parseFloat(feedbackWrapper.style.opacity);
+            feedbackWrapper.style.opacity = opacity - 0.01;
+            if (opacity <= 0) {
+                clearInterval(opacityInterval);
+            }
+        }, (timeout * 0.01 * 1000));
     }
 
     function getRound() {
@@ -217,23 +290,9 @@
             .then(result => result.json())
             .then(response => {
                 thisRound = response.round;
-                document.getElementById('roundNumber').innerText = thisRound;
-                resolve();
-            })
-            .catch(console.error);
-        });
-    }
-
-    function randomize() {
-        return new Promise((resolve, reject) => {
-            fetch('/randomizeChains', {
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-            })
-            .then(result => result.json())
-            .then(response => {
-                console.log(response.r);
+                for( element in document.getElementsByClassName('roundNumber')) {
+                    element.innerText = thisRound;
+                }
                 resolve();
             })
             .catch(console.error);
@@ -241,7 +300,6 @@
     }
 
     function getYourPrompt() { 
-        console.log({ username: thisUsername, round: thisRound });
         fetch("/getPrompt", {
             method: 'post',
             body: JSON.stringify({ username: thisUsername, round: thisRound }),
@@ -251,29 +309,136 @@
         })
         .then(result => result.json())
         .then(response => {
-            thisPrompt = response.prompt;
-            document.getElementById('promptDisplay').innerText = thisPrompt;
-            console.log(thisPrompt);
+            if(response.message) {
+                feedback(response.message, 5);
+            } else {
+                thisPrompt = response.prompt;
+                document.getElementById('promptDisplay').innerText = thisPrompt;
+            }
         })
         .catch(console.error);
     }
 
-    function setPage() {
+    function getYourSong() {
+            fetch("/getSong", {
+                method: 'post',
+                body: JSON.stringify({ username: thisUsername, round: thisRound }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then(result => result.json())
+                .then(response => {
+                    if(response.message) {
+                        feedback(response.message, 5);
+                    } else {
+                        //document.getElementById('songDisplay').innerText = response.name;
+                        document.getElementById('songDisplay').href = response.link;
+                    }
+                })
+                .catch(console.error);
+        }
+
+    async function setPage() {
         const submitSongWrapper = document.getElementById('submitSong');
+        const submitPromptWrapper = document.getElementById('submitPrompt');
         const registerWrapper = document.getElementById('register');
+        const onHoldWrapper = document.getElementById('onHold');
         const eventTimeElement = document.getElementById('eventTime');
         //dummy
-        if(determineTime(...eventDates["round1a"]) > 0) {
+        let time = determineTime(...[0,0,0])[0]/**24*60+ determineTime(...[0, 0, 0])[1] * 60+ determineTime(...[0, 0, 0])[2]*/;
+        let timeEnd = 0;
+        let type = "start";
+        let eventDate = [0,0,0];
+        const dates = Object.values(eventDates);
+        for(let i = 0; i < dates.length; i++ ) {
+            let date = dates[i];
+            const eventTime = determineTime(...date["time"])[0]/* * 24 * 60 + determineTime(...date["time"])[1] * 60 + determineTime(...date["time"])[2]*/;
+            if(eventTime > time && eventTime < 0) {
+                time = eventTime;
+                timeEnd = determineTime(...dates[i+1]["time"])[0] + ":" + determineTime(...dates[i + 1]["time"])[1] + ":" + determineTime(...dates[i + 1]["time"])[2];
+                type = dates[i+1]["type"];
+                eventDate = dates[i+1]["time"];
+            }
+        }
+        console.log(type, isOnHold);
+        if(type == "start") {
             submitSongWrapper.style.display = "none";
+            submitPromptWrapper.style.display = "none";
             registerWrapper.style.display = "";
-        } else {
-            submitSongWrapper.style.display = "";
+            OnHoldWrapper.style.display = "none";
+        } else if (isOnHold) {
+            submitSongWrapper.style.display = "none";
+            submitPromptWrapper.style.display = "none";
             registerWrapper.style.display = "none";
+            OnHoldWrapper.style.display = "";
+        } else if (type == "song") {
+            submitSongWrapper.style.display = "";
+            submitPromptWrapper.style.display = "none"
+            registerWrapper.style.display = "none";
+            OnHoldWrapper.style.display = "none"
             eventTimeElement.innerHTML = `Song submissions close in <span id="timeLeft">XX hours</span>`
             const timeLeftElement = document.getElementById('timeLeft');
-            timeLeftElement.innerText = determineTime(...eventDates["round1b"]) + " hours";
+            timeLeftElement.innerText = timeEnd;
             getYourPrompt();
+            countDown(eventDate);
+        } else if (type == "prompt") {
+            submitPromptWrapper.style.display = "";
+            submitSongWrapper.style.display = "none";
+            registerWrapper.style.display = "none";
+            OnHoldWrapper.style.display = "none"
+            eventTimeElement.innerHTML = `Prompt submissions close in <span id="timeLeft">XX hours</span>`
+            const timeLeftElement = document.getElementById('timeLeft');
+            timeLeftElement.innerText = timeEnd;
+            getYourSong(); 
+            countDown(eventDate);
+        } else if (type == "end") {
+            // submitSongWrapper.style.display = "";
+            // registerWrapper.style.display = "none";
+            // eventTimeElement.innerHTML = `Song submissions close in <span id="timeLeft">XX hours</span>`
+            // const timeLeftElement = document.getElementById('timeLeft');
+            // timeLeftElement.innerText = determineTime(...eventDates["round1b"]) + " hours";
+            // getYourPrompt();
         }
     }   
+
+    function countDown(date) {
+        setInterval(() => {
+            const timeLeftElement = document.getElementById('timeLeft');
+            timeLeftElement.innerText = determineTime(...date)[0] + ":" + determineTime(...date)[1] + ":" + determineTime(...date)[2];;
+        }, 1000)
+    }
+
+    function randomize() { //debug function
+        return new Promise((resolve, reject) => {
+            fetch('/randomizeChains', {
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then(result => result.json())
+                .then(response => {
+                    console.log(response.r);
+                    resolve();
+                })
+                .catch(console.error);
+        });
+    }
+
+    function deleteLastRound() { //debug function
+        return new Promise((resolve, reject) => {
+            fetch('/deleteLastRound', {
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then(result => result.json())
+                .then(response => {
+                    console.log(response.r);
+                    resolve();
+                })
+                .catch(console.error);
+        });
+    }
 
 </script>

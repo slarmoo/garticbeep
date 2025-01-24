@@ -1,5 +1,3 @@
-// const cookieParser = require('cookie-parser');
-// const bcrypt = require('bcrypt');
 const express = require('express');
 const app = express();
 const DB = require('./database.js');
@@ -11,9 +9,6 @@ const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
 // JSON body parsing using built-in middleware
 app.use(express.json());
-
-// Use the cookie parser middleware for tracking authentication tokens
-// app.use(cookieParser());
 
 // Serve up the front-end static content hosting
 app.use(express.static('public'));
@@ -71,7 +66,7 @@ app.post("/appendSong", (request, response) => {
     async function f() {
         const update = await DB.appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
         console.log("successfully appended song: ", update);
-        response.status(200);
+        response.send({ update: update });
     }
     f();
 })
@@ -80,7 +75,7 @@ app.post("/appendPrompt", (request, response) => {
     async function f() {
         const update = await DB.appendPrompt(request.body.round, request.body.username, request.body.prompt);
         console.log("successfully appended prompt: ", update);
-        response.status(200);
+        response.send({ update: update });
     }
     f();
 })
@@ -96,7 +91,46 @@ app.get("/roundNumber", (request, response) => {
 app.post("/getPrompt", (request, response) => {
     async function f() {
         const prompt = await DB.getPrompt(request.body.username);
-        response.send({ prompt: prompt["chain"][request.body.round - 1]["prompt"] });
+        try {
+            response.send({ prompt: prompt["chain"][request.body.round - 1]["prompt"] });
+        } catch {
+            const randomized = await DB.randomizeChains(false);
+            console.log(randomized);
+            response.send({ message: "you haven't submitted yet or you're on hold" });
+        }
+    }
+    f();
+})
+
+app.post("/getSong", (request, response) => {
+    async function f() {
+        const song = await DB.getSong(request.body.username);
+        try {
+            const link = song["chain"][request.body.round - 2]["song"];
+            let name = song["chain"][request.body.round - 2]["songName"];
+            console.log(link, name);
+            if (!name) {
+                name = "Untitled";
+            }
+            if (link.match(/https?:\/\//)) {
+                response.send({ name: name, link: link });
+            } else {
+                response.send({ message: "previous person did not submit a link. Please either reload the page or reach out to slarmoo" });
+            }
+        } catch {
+            const randomized = await DB.randomizeChains(true);
+            console.log(randomized);
+            response.send({ prompt: "you haven't submitted yet or you're on hold" });
+        }
+    }
+    f();
+})
+
+app.post("/isOnHold", (request, response) => {
+    async function f() {
+        const status = await DB.isOnHold(request.body.username);
+        console.log(status);
+        response.send({ status: status });
     }
     f();
 })
@@ -110,41 +144,14 @@ app.get("/randomizeChains", (request, response) => {
     f();
 })
 
-// apiRouter.post('/auth/create', async (req, res) => {
-//     if (await DB.getUser(req.body.email)) {
-//         res.status(409).send({ msg: 'Existing user' });
-//     } else {
-//         const user = await DB.createUser(req.body.email, req.body.password);
-
-//         // Set the cookie
-//         setAuthCookie(res, user.token);
-
-//         res.send({
-//             id: user._id,
-//         });
-//     }
-// });
-
-// apiRouter.post('/auth/login', async (req, res) => {
-//     const user = await DB.getUser(req.body.email);
-//     if (user) {
-//         if (await bcrypt.compare(req.body.password, user.password)) {
-//             setAuthCookie(res, user.token);
-//             res.send({ id: user._id });
-//             return;
-//         }
-//     }
-//     res.status(401).send({ msg: 'Unauthorized' });
-// });
-
-// // setAuthCookie in the HTTP response
-// function setAuthCookie(res, authToken) {
-//     res.cookie(authCookieName, authToken, {
-//         secure: true,
-//         httpOnly: true,
-//         sameSite: 'strict',
-//     });
-// }
+app.get("/deleteLastRound", (request, response) => {
+    async function f() {
+        const deleted = await DB.deleteLastRound();
+        console.log(deleted);
+        response.send({ r: deleted });
+    }
+    f();
+})
 
 //final
 app.use(`/api`, apiRouter);

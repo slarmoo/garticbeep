@@ -113,6 +113,24 @@ a {
     border-style: solid;
 }
 
+#feedbackWrapper {
+    background-color: #8000ffb0;
+    opacity: 0;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    border-radius: 0.375rem;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    position: fixed;
+    top: 3vh;
+    left: 10vw;
+    
+    z-index: 10;
+}
+
 button:hover {
     background-color: #b030ff;
 }
@@ -151,6 +169,6 @@ a:hover {
         x: inherit;
         left: 440px;
         bottom: 82px;
-        width: max(min(calc(100vw - 500px), calc(1100px - 500px)), 100px);
+        width: max(min(calc(100vw - 520px), calc(1100px - 500px)), 100px);
     }
 }
