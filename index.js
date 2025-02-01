@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const DB = require('./database.js');
+const config = require('./adminConfig.json');
 
 const authCookieName = 'token';
 
@@ -37,10 +38,10 @@ app.get('/auth/garticBeep.png', (request, response) => {
 });
 
 //chain format:
-{
+const chain = {
     chain: [
         { //round 1
-            promptGiver: "username", prompt: "prompt", onHold: false, songmaker: "username", song: "song", songName: "songName"
+            promptGiver: "username", prompt: "prompt", songmaker: "username", song: "song", songName: "songName"
         }, //if onhold is true this will likely be a snipped chain unless something goes wrong
         { //round 2
             promptGiver: "username", prompt: "prompt", songmaker: "username", song: "song", songName: "songName"
@@ -56,102 +57,126 @@ app.get('/auth/garticBeep.png', (request, response) => {
         },
     ]
 }
+
+//user format
+const user = {
+    user: "username",
+    onHold: false,
+    strikes: 0
+}
+
 app.post("/startChain", (request, response) => {
     DB.startChain(request.body.username, request.body.prompt, request.body.onhold);
     console.log("successfully started chain");
     response.status(200);
 })
 
-app.post("/appendSong", (request, response) => {
-    async function f() {
-        const update = await DB.appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
-        console.log("successfully appended song: ", update);
-        response.send({ update: update });
-    }
-    f();
+app.post("/appendSong", async (request, response) => {
+    const update = await DB.appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
+    console.log("successfully appended song: ", update);
+    response.send({ update: update });
 })
 
-app.post("/appendPrompt", (request, response) => {
-    async function f() {
-        const update = await DB.appendPrompt(request.body.round, request.body.username, request.body.prompt);
-        console.log("successfully appended prompt: ", update);
-        response.send({ update: update });
-    }
-    f();
+app.post("/appendPrompt", async (request, response) => {
+    const update = await DB.appendPrompt(request.body.round, request.body.username, request.body.prompt);
+    console.log("successfully appended prompt: ", update);
+    response.send({ update: update });
 })
 
-app.get("/roundNumber", (request, response) => {
-    async function f() {
-        const round = await DB.getRoundNumber();
-        response.send({ round: round });
-    }
-    f();
+app.get("/roundNumber", async (request, response) => {
+    const round = await DB.getRoundNumber();
+    response.send({ round: round });
 })
 
-app.post("/getPrompt", (request, response) => {
-    async function f() {
-        const prompt = await DB.getPrompt(request.body.username);
-        try {
-            response.send({ prompt: prompt["chain"][request.body.round - 1]["prompt"] });
-        } catch {
-            const randomized = await DB.randomizeChains(false);
-            console.log(randomized);
-            response.send({ message: "you haven't submitted yet or you're on hold" });
+app.post("/getPrompt", async (request, response) => {
+    const prompt = await DB.getPrompt(request.body.username);
+    try {
+        response.send({ prompt: prompt["chain"][request.body.round - 1]["prompt"] });
+    } catch {
+        const randomized = await DB.randomizeChains(false);
+        console.log(randomized);
+        response.send({ message: "you haven't submitted yet or you're on hold" });
+    }
+})
+
+app.post("/getSong", async (request, response) => {
+    const song = await DB.getSong(request.body.username);
+    try {
+        const link = song["chain"][request.body.round - 2]["song"];
+        let name = song["chain"][request.body.round - 2]["songName"];
+        console.log(link, name);
+        if (!name) {
+            name = "Untitled";
         }
-    }
-    f();
-})
-
-app.post("/getSong", (request, response) => {
-    async function f() {
-        const song = await DB.getSong(request.body.username);
-        try {
-            const link = song["chain"][request.body.round - 2]["song"];
-            let name = song["chain"][request.body.round - 2]["songName"];
-            console.log(link, name);
-            if (!name) {
-                name = "Untitled";
-            }
-            if (link.match(/https?:\/\//)) {
-                response.send({ name: name, link: link });
-            } else {
-                response.send({ message: "previous person did not submit a link. Please either reload the page or reach out to slarmoo" });
-            }
-        } catch {
-            const randomized = await DB.randomizeChains(true);
-            console.log(randomized);
-            response.send({ prompt: "you haven't submitted yet or you're on hold" });
+        if (link.match(/https?:\/\//)) {
+            response.send({ name: name, link: link });
+        } else {
+            response.send({ message: "previous person did not submit a link. Please either reload the page or reach out to slarmoo" });
         }
-    }
-    f();
-})
-
-app.post("/isOnHold", (request, response) => {
-    async function f() {
-        const status = await DB.isOnHold(request.body.username);
-        console.log(status);
-        response.send({ status: status });
-    }
-    f();
-})
-
-app.get("/randomizeChains", (request, response) => {
-    async function f() {
+    } catch {
         const randomized = await DB.randomizeChains(true);
-        // console.log(randomized);
-        response.send({ r: randomized });
+        console.log(randomized);
+        response.send({ prompt: "you haven't submitted yet or you're on hold" });
     }
-    f();
 })
 
-app.get("/deleteLastRound", (request, response) => {
-    async function f() {
+app.post("/isOnHold", async (request, response) => {
+    const status = await DB.isOnHold(request.body.username);
+    console.log(status);
+    response.send({ status: status });
+})
+
+app.post("/randomizeChains", async (request, response) => {
+    if (request.body.username == config.username && request.body.password == config.password) {
+        const randomized = await DB.randomizeChains(request.body.isNewRound);
+        console.log(randomized);
+        response.send({ r: randomized });
+    } else {
+        response.status(409).send({ message: "unauthorized access" })
+    }
+})
+
+app.post("/deleteLastRound", async (request, response) => {
+    if (request.body.username == config.username && request.body.password == config.password) {
         const deleted = await DB.deleteLastRound();
         console.log(deleted);
         response.send({ r: deleted });
+    } else {
+        response.status(409).send({ message: "unauthorized access" })
     }
-    f();
 })
+
+app.post("/generateDebugChains", async (request, response) => {
+    if (request.body.username == config.username && request.body.password == config.password) {
+        const starts = await DB.generateDebugChains(request.body.onHold);
+        console.log(starts);
+        response.send({ r: starts });
+    } else {
+        response.status(409).send({ message: "unauthorized access" })
+    }
+})
+
+app.post("/generateDebugSongs", async (request, response) => {
+    if (request.body.username == config.username && request.body.password == config.password) {
+        const starts = await DB.generateDebugSongs(request.body.percentSubmitted);
+        // console.log(starts);
+        response.send({ r: starts });
+    } else {
+        response.status(409).send({ message: "unauthorized access" })
+    }
+})
+
+app.post("/generateDebugPrompts", async (request, response) => {
+    if (request.body.username == config.username && request.body.password == config.password) {
+        const starts = await DB.generateDebugPrompts(request.body.percentSubmitted);
+        // console.log(starts);
+        response.send({ r: starts });
+    } else {
+        response.status(409).send({ message: "unauthorized access" })
+    }
+})
+
+
 
 //final
 app.use(`/api`, apiRouter);
