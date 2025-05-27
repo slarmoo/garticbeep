@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const DB = require('../database.js');
+const DB = require('./database.js');
 const config = require('.bin/adminConfig.json');
 
 const authCookieName = 'token';
