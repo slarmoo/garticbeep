@@ -1,30 +1,35 @@
-import { useState } from 'react'
-import './App.css'
+// import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+// import { useState } from 'react'
+import { Unauthenticated } from './pages/unauthenticated'
+import { Register } from './pages/register';
+import { SubmitSong } from './pages/submitSong';
+import { SubmitPrompt } from './pages/submitPrompt';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-        </a>
-        <a href="https://react.dev" target="_blank">
-        </a>
+    <BrowserRouter>
+      <div id="title">
+          <h1>Gartic Beep!</h1>
+          <img id="logo" src="garticBeep.png" />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      <Routes>
+        <Route path="/" element={<Unauthenticated />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/submitSong" element={<SubmitSong />} />
+        <Route path="/submitPrompt" element={<SubmitPrompt />} />
+      </Routes>
+
+      <br />
+      <footer>
+          <a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
+      </footer>
+      <div id="background"></div>
+
+      
+
+    </BrowserRouter>
   )
 }
 

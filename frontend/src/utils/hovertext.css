@@ -1,0 +1,23 @@
+.hovertext>* {
+    display: none;
+}
+
+.hovertext:hover>* {
+    display: flex;
+    background-color: #8000ffb0;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+
+@media (min-width: 710px) {
+    .hovertext:hover>* {
+        position: absolute;
+        left: 440px;
+        top: 190px;
+        width: max(min(calc(100vw - 520px), calc(1100px - 500px)), 100px);
+    }
+}
+
+.hovertext {
+    margin-left: 5px;
+}

@@ -19,10 +19,8 @@ body > * {
     background-color: #420084;
     background-image: linear-gradient(0deg, #420084, #5836a0);
     position:fixed;
-    x: center;
-    y: center;
-    -ms-perspective-origin-x:center;
-    -ms-perspective-origin-y:center;
+    top: 0;
+    left: 0;
     z-index: -1;
 }
 
@@ -152,23 +150,6 @@ a:hover {
 .bg-discord-blue:hover {
     background-color: rgb(84 107 188 / var(--tw-bg-opacity));
 }
-
-.hovertext > * {
-    display: none;
-}
-
-.hovertext:hover > * { 
-    display: flex;
-    background-color: #8000ffb0;
-}
-
-@media (min-width: 710px) {
-    .hovertext:hover>* {
-        position: absolute;
-        y: inherit;
-        x: inherit;
-        left: 440px;
-        bottom: 82px;
-        width: max(min(calc(100vw - 520px), calc(1100px - 500px)), 100px);
-    }
-}
+/* 
+input[type="text"] {
+} */
