@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const DB = require('./database.js');
-const config = require('./adminConfig.json');
+const DB = require('../database.js');
+const config = require('.bin/adminConfig.json');
 
 const authCookieName = 'token';
 
