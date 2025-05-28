@@ -112,7 +112,7 @@ a {
 }
 
 #feedbackWrapper {
-    background-color: #ff0000b0;
+    background-color: #b030ffb0;
     opacity: 0;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
@@ -150,6 +150,3 @@ a:hover {
 .bg-discord-blue:hover {
     background-color: rgb(84 107 188 / var(--tw-bg-opacity));
 }
-/* 
-input[type="text"] {
-} */

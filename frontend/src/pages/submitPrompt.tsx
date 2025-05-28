@@ -1,10 +1,11 @@
 import { Hovertext } from "../utils/hovertext"
+import { RoundNumber } from "../utils/roundNumber"
 
 export function SubmitPrompt() {
     return (   
         <div id="formWrapper">
             <div className="blob">
-                <h4>Round <span className="roundNumber"></span></h4>
+                <RoundNumber />
                 <h4>Song: <a id="songDisplay" target="_blank">Link</a></h4>
             </div>
             <div className="blob">

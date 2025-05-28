@@ -1,7 +1,28 @@
 import { Checkbox } from "../utils/checkbox"
+import type { DiscordData } from "../utils/Config";
 import { Hovertext } from "../utils/hovertext"
+import { displayPrompt, displayPromptText } from "../Context";
 
-export function Register() {
+export function Register(props: RegisterProps) {
+    const { setShowPrompt } = displayPrompt();
+    const { setPromptText } = displayPromptText();
+
+    function register() {
+        const statusElement: HTMLInputElement = document.getElementById('statusInput') as HTMLInputElement;
+        const promptElement: HTMLInputElement = document.getElementById('initialPrompt') as HTMLInputElement;
+        if (promptElement && statusElement) {
+            fetch("/api/startchain", {
+                method: 'post',
+                body: JSON.stringify({ username: props.discordData.username, onhold: statusElement.value, prompt: promptElement.value }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            });
+            setShowPrompt(true);
+            setPromptText("Submitted!");
+        }
+    }
+
     return (   
     <div id="formWrapper">
         <div className="blob">
@@ -28,6 +49,8 @@ export function Register() {
     )
 }
 
-function register() {
 
+
+interface RegisterProps {
+    discordData: DiscordData
 }
