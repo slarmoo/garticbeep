@@ -1,116 +1,147 @@
 import type { DiscordData } from "./Config";
 
-export function randomize(password: string, isNewRound: boolean, discordData: DiscordData) { //admin function
-    return new Promise<void>((resolve, reject) => {
-        fetch('/api/randomizeChains', {
-            method: 'post',
-            body: JSON.stringify({ username: discordData.username, password: password, isNewRound: isNewRound }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then(result => result.json())
-            .then(response => {
-                if (response.message) {
-                    console.log("message: ", response.message);
-                    reject();
-                } else {
-                    console.log("response: ", response.r);
-                    resolve();
-                }
-            })
-            .catch(console.error);
-    });
-}
+export class Admin {
+    private discordData: DiscordData | null = null;
 
-export function deleteLastRound(password: string, discordData: DiscordData) { //admin function
-    return new Promise<void>((resolve, reject) => {
-        fetch('/api/deleteLastRound', {
-            method: 'post',
-            body: JSON.stringify({ username: discordData.username, password: password }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then(result => result.json())
-            .then(response => {
-                if (response.message) {
-                    console.log("message: ", response.message);
-                    reject();
-                } else {
-                    console.log("response: ", response.r);
-                    resolve();
-                }
-            })
-            .catch(console.error);
-    });
-}
+    public setDiscordData(discordData: DiscordData) {
+        this.discordData = discordData;
+    }
 
-export function generateDebugChains(password: string, onHold: boolean, discordData: DiscordData) { //admin function
-    return new Promise<void>((resolve, reject) => {
-        fetch('/api/generateDebugChains', {
-            method: 'post',
-            body: JSON.stringify({ username: discordData.username, password: password, onHold: onHold }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then(result => result.json())
-            .then(response => {
-                if (response.message) {
-                    console.log("message: ", response.message);
-                    reject();
-                } else {
-                    console.log("response: ", response.r);
-                    resolve();
-                }
-            })
-            .catch(console.error);
-    });
-}
+    public async generateFiveRounds(password: string, onHold: boolean, percentSubmitted: number = 100 ) {
+        await this.generateDebugChains(password, onHold);
+        await this.randomize(password, false);
+        await this.generateDebugSongs(password, percentSubmitted);
+        for (let i: number = 1; i < 5; i++) {
+            await this.randomize(password, true);
+            await this.generateDebugPrompts(password, percentSubmitted);
+            await this.randomize(password, false);
+            await this.generateDebugSongs(password, percentSubmitted);
+        }
+        console.log("Done!");
+    }
 
-export function generateDebugSongs(password: string, percentSubmitted: number = 100, discordData: DiscordData) { //admin function
-    return new Promise<void>((resolve, reject) => {
-        fetch('/api/generateDebugSongs', {
-            method: 'post',
-            body: JSON.stringify({ username: discordData.username, password: password, percentSubmitted: percentSubmitted }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then(result => result.json())
-            .then(response => {
-                if (response.message) {
-                    console.log("message: ", response.message);
-                    reject();
-                } else {
-                    console.log("response: ", response.r);
-                    resolve();
-                }
-            })
-            .catch(console.error);
-    });
-}
+    public randomize(password: string, isNewRound: boolean) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.discordData) {
+                fetch('http://localhost:3000/api/randomizeChains', {
+                    method: 'post',
+                    body: JSON.stringify({ username: this.discordData.username, password: password, isNewRound: isNewRound }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                .then(result => result.json())
+                .then(response => {
+                    if (response.message) {
+                        console.log("message: ", response.message);
+                        reject();
+                    } else {
+                        console.log("response: ", response.r);
+                        resolve();
+                    }
+                })
+                .catch(console.error);
+        }
+        });
+    }
 
-export function generateDebugPrompts(password: string, percentSubmitted: number = 100, discordData: DiscordData) { //admin function
-    return new Promise<void>((resolve, reject) => {
-        fetch('/api/generateDebugPrompts', {
-            method: 'post',
-            body: JSON.stringify({ username: discordData.username, password: password, percentSubmitted: percentSubmitted }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-            .then(result => result.json())
-            .then(response => {
-                if (response.message) {
-                    console.log("message: ", response.message);
-                    reject();
-                } else {
-                    console.log("response: ", response.r);
-                    resolve();
-                }
-            })
-            .catch(console.error);
-    });
+    public deleteLastRound(password: string) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.discordData) {
+                fetch('http://localhost:3000/api/deleteLastRound', {
+                    method: 'post',
+                    body: JSON.stringify({ username: this.discordData.username, password: password }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                .then(result => result.json())
+                .then(response => {
+                    if (response.message) {
+                        console.log("message: ", response.message);
+                        reject();
+                    } else {
+                        console.log("response: ", response.r);
+                        resolve();
+                    }
+                })
+                .catch(console.error);
+            }
+        });
+    }
+
+    public generateDebugChains(password: string, onHold: boolean) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.discordData) {
+                fetch('http://localhost:3000/api/generateDebugChains', {
+                    method: 'post',
+                    body: JSON.stringify({ username: this.discordData.username, password: password, onHold: onHold }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                .then(result => result.json())
+                .then(response => {
+                    if (response.message) {
+                        console.log("message: ", response.message);
+                        reject();
+                    } else {
+                        console.log("response: ", response.r);
+                        resolve();
+                    }
+                })
+                .catch(console.error);
+            }
+        });
+    }
+
+    public generateDebugSongs(password: string, percentSubmitted: number = 100) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.discordData) {
+                fetch('http://localhost:3000/api/generateDebugSongs', {
+                    method: 'post',
+                    body: JSON.stringify({ username: this.discordData.username, password: password, percentSubmitted: percentSubmitted }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                .then(result => result.json())
+                .then(response => {
+                    if (response.message) {
+                        console.log("message: ", response.message);
+                        reject();
+                    } else {
+                        console.log("response: ", response.r);
+                        resolve();
+                    }
+                })
+                .catch(console.error);
+            }
+        });
+    }
+
+    public generateDebugPrompts(password: string, percentSubmitted: number = 100) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.discordData) {
+                fetch('http://localhost:3000/api/generateDebugPrompts', {
+                    method: 'post',
+                    body: JSON.stringify({ username: this.discordData.username, password: password, percentSubmitted: percentSubmitted }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                })
+                .then(result => result.json())
+                .then(response => {
+                    if (response.message) {
+                        console.log("message: ", response.message);
+                        reject();
+                    } else {
+                        console.log("response: ", response.r);
+                        resolve();
+                    }
+                })
+                .catch(console.error);
+            }
+        });
+    }
 }

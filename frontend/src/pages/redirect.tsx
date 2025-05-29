@@ -10,7 +10,8 @@ export function Redirect() {
 
     return (  
         <>
-            Redirecting...
+            <div>Redirecting...</div>
+            <br />
         </>
     )
 }

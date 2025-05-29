@@ -17,9 +17,9 @@ const userCollection = client.db('garticbeep').collection<user>('users');
 });
 
 async function startChain(username: string, prompt: string, onHold: boolean) {
-    chainCollection.findOneAndDelete({ "chain.promptGiver": username });
-    userCollection.findOneAndDelete({ "user": username });
-    userCollection.insertOne({ user: username, onHold: onHold, strikes: 0 });
+    await chainCollection.findOneAndDelete({ "chain.promptGiver": username });
+    await userCollection.findOneAndDelete({ "user": username });
+    await userCollection.insertOne({ user: username, onHold: onHold, strikes: 0 });
     return await chainCollection.insertOne({ chain: [{ promptGiver: username, prompt: prompt } as chainLink] } as chain);
 }
 
@@ -230,17 +230,16 @@ async function deleteLastRound() { //only to be used in emergencies / testing
     const round: number = await getRoundNumber();
     const chains: chain[] = await getAllSongs();
     const statuses = [];
-    for (let i = 0; i < chains.length; i++) {
-        if (chains[i].chain.length == round) chains[i].chain.pop();
-    }
-    for (let i = 0; i < chains.length; i++) {
-        if (chains[i].chain.length <= 0) {
-            statuses[i] = await chainCollection.deleteOne({ _id: chains[i]["_id"] });
-            await userCollection.deleteOne({ user: chains[i].chain[0].promptGiver });
-        } else {
-            statuses[i] = await chainCollection.replaceOne({ _id: chains[i]["_id"] }, chains[i]);
+    if (round <= 1) {
+        statuses[0] = await chainCollection.deleteMany({});
+        statuses[1] = await userCollection.deleteMany({});
+    } else {
+        for (let i = 0; i < chains.length; i++) {
+            if (chains[i].chain.length == round) chains[i].chain.pop();
+            statuses[i] = await chainCollection.replaceOne({ _id: chains[i]._id }, chains[i]);
         }
     }
+    
     return statuses;
 }
 

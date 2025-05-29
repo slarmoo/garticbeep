@@ -10,14 +10,18 @@ import { Redirect } from './pages/redirect';
 import { DiscordAuth } from './pages/discordAuth';
 import type { DiscordData } from './utils/Config';
 import { FeedbackPrompt } from './utils/feedbackPrompt';
+import { Admin } from './utils/adminFuntions';
 
 function App() {
   const [discordData, setDiscordData] = useState<DiscordData>()
   const [avatarSource, setAvatarSource] = useState<string>("");
+  const admin: Admin = new Admin();
 
   useEffect(() => {
     if (discordData) {
       setAvatarSource(`https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.jpg`);
+      admin.setDiscordData(discordData);
+      (window as any).admin = admin; //expose admin to the console for debugging
     }
   }, [discordData])
 
@@ -70,7 +74,7 @@ function App() {
       </footer>
 
       <div id="background"></div>
-      <FeedbackPrompt timeout={5} />
+      <FeedbackPrompt timeout={10} />
 
     </BrowserRouter>
   )

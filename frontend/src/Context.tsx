@@ -15,7 +15,7 @@ const DisplayPromptContext = createContext<DisplayPromptContextType | undefined>
 const PromptTextContext = createContext<PromptTextContextType | undefined>(undefined);
 
 export function ContextProvider({ children }: { children: ReactNode }) {
-    const [showPrompt, setShowPrompt] = useState<boolean>(true);
+    const [showPrompt, setShowPrompt] = useState<boolean>(false);
     const [promptText, setPromptText] = useState<string>("");
 
     return (
