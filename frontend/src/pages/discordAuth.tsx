@@ -35,7 +35,8 @@ export function DiscordAuth(props: DiscordAuthProps) {
 
     return (
         <>
-            Redirecting...
+            <div>Redirecting...</div>
+            <br />
         </>
     )
 }

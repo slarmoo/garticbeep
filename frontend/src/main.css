@@ -93,6 +93,15 @@ a {
     color: inherit;
 }
 
+select {
+    margin-top: 20px;
+    font-size: large;
+    background-color: #8000ff;
+    color: white;
+    padding: 3px;
+    border-radius: 0.375rem;
+}
+
 .blob {
     background-color: #8000ff;
     padding-top: 0.75rem;

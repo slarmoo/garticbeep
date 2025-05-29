@@ -11,6 +11,7 @@ import { DiscordAuth } from './pages/discordAuth';
 import type { DiscordData } from './utils/Config';
 import { FeedbackPrompt } from './utils/feedbackPrompt';
 import { Admin } from './utils/adminFuntions';
+import { ViewChains } from './utils/viewChains';
 
 function App() {
   const [discordData, setDiscordData] = useState<DiscordData>()
@@ -47,14 +48,8 @@ function App() {
         <Route path="/auth/discord" element={<DiscordAuth getDiscordData={setDiscordData} />} />
         {discordData && (<>
           <Route path="/register" element={<Register discordData={discordData} />} />
-        {/* // )}
-        // {discordData && ( */}
           <Route path="/submitSong" element={<SubmitSong />} />
-        {/* // )}
-        // {discordData && ( */}
           <Route path="/submitPrompt" element={<SubmitPrompt />} />
-        {/* // )}
-        // {discordData && ( */}
           <Route path="/onHold" element={<OnHold />} />
           </>)}
         <Route path="*" element={<Redirect />} />
@@ -72,6 +67,8 @@ function App() {
       <footer>
           <a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
       </footer>
+
+      <ViewChains />
 
       <div id="background"></div>
       <FeedbackPrompt timeout={10} />

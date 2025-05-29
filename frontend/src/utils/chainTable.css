@@ -1,0 +1,22 @@
+a {
+    color: var(--link-accent, #98f);
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px;
+    align-self: center;
+    justify-content: center;
+}
+
+tr, tbody, thead {
+    margin: 0;
+    padding: 0
+}
+
+th {
+    border-width: 2px;
+    border-style: solid;
+    margin: 0;
+    padding: 10px;
+}

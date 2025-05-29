@@ -7,15 +7,22 @@ export class Admin {
         this.discordData = discordData;
     }
 
-    public async generateFiveRounds(password: string, onHold: boolean, percentSubmitted: number = 100 ) {
+    public async generateFiveRounds(password: string, onHold: boolean, percentSubmitted: number = 100) {
+        console.log("beginning chains...");
         await this.generateDebugChains(password, onHold);
+        console.log("randomizing...");
         await this.randomize(password, false);
+        console.log("generating songs...");
         await this.generateDebugSongs(password, percentSubmitted);
         for (let i: number = 1; i < 5; i++) {
             await this.randomize(password, true);
+            console.log("randomizing...");
             await this.generateDebugPrompts(password, percentSubmitted);
+            console.log("generating prompts...");
             await this.randomize(password, false);
+            console.log("randomizing...");
             await this.generateDebugSongs(password, percentSubmitted);
+            console.log("generating songs...");
         }
         console.log("Done!");
     }

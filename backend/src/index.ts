@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { response } from 'express';
 import cors from 'cors';
 import { startChain, appendSong, appendPrompt, getAllSongs, getRoundNumber, getPrompt, getSong, randomizeChains, deleteLastRound, isOnHold, generateDebugChains, generateDebugSongs, generateDebugPrompts } from './database';
+import { chain } from './Config';
 const adminConfig = require("./adminConfig.json");
 
 const app = express();
@@ -26,6 +27,12 @@ app.get('/', (_req, res) => {
 apiRouter.post("/startChain", (request, response) => {
     startChain(request.body.username, request.body.prompt, request.body.onhold);
     response.status(200);
+})
+
+apiRouter.get("/getAll", async (request, response) => {
+    const chains: chain[] = await getAllSongs();
+    console.log(chains);
+    response.send({ chains: chains });
 })
 
 //admin functions
