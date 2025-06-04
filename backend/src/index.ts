@@ -1,11 +1,13 @@
-import express, { response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import { startChain, appendSong, appendPrompt, getAllSongs, getRoundNumber, getPrompt, getSong, randomizeChains, deleteLastRound, isOnHold, generateDebugChains, generateDebugSongs, generateDebugPrompts } from './database';
 import { chain } from './Config';
+import { roundDates } from './roundDates';
 const adminConfig = require("./adminConfig.json");
 
 const app = express();
 const port: number = 3000;
+const dates: roundDates = new roundDates();
 
 const authCookieName: string = 'token';
 
@@ -27,6 +29,11 @@ app.get('/', (_req, res) => {
 apiRouter.post("/startChain", (request, response) => {
     startChain(request.body.username, request.body.prompt, request.body.onhold);
     response.status(200);
+})
+
+apiRouter.get("/getRound", (request, response) => {
+    const round = dates.findCurrentRound();
+    response.send({ round: round.round, type: round.type, utc: dates.timeToUTC(round.time) });
 })
 
 apiRouter.get("/getAll", async (request, response) => {

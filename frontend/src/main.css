@@ -146,6 +146,15 @@ a:hover {
     color: #bf6fff;
 }
 
+footer {
+    display: flex;
+    flex-direction: row;
+}
+
+footer > * {
+    margin-right: 1em;
+}
+
 .bg-discord-blue {
     --tw-bg-opacity: 1;
     background-color: rgb(114 137 218 / var(--tw-bg-opacity));

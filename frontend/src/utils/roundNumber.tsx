@@ -1,27 +1,17 @@
 import { useState, useEffect } from 'react'
+import { EventRound } from '../Context';
 
 export function RoundNumber(props: RoundNumberProps) {
-    const [roundNumber, setRoundNumber] = useState<number>(0);
+    const { round } = EventRound();
     const [roundDisplay, setRoundDisplay] = useState<string>("");
 
-    useEffect(() => {
-        fetch('/roundNumber', {
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-        .then(result => result.json())
-        .then(response => {
-            setRoundNumber(response.round);
-        })
-    }, [])
 
     useEffect(() => {
-        setRoundDisplay(roundNumber > 0 ? roundNumber + "" : "");
+        setRoundDisplay(round[0] > 0 ? round[0] + "" : "");
         if (props.getRoundNumber) {
-            props.getRoundNumber(roundNumber);
+            props.getRoundNumber(round[0]);
         }
-    }, [roundNumber])
+    }, [round])
 
     return <h4>Round { roundDisplay }</h4>
 }

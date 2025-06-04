@@ -1,5 +1,5 @@
 // import React from 'react';
-import { BrowserRouter, Route, Routes, NavLink } from 'react-router-dom';
+import { Route, Routes, NavLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import { Unauthenticated } from './pages/unauthenticated'
 import { Register } from './pages/register';
@@ -12,10 +12,14 @@ import type { DiscordData } from './utils/Config';
 import { FeedbackPrompt } from './utils/feedbackPrompt';
 import { Admin } from './utils/adminFuntions';
 import { ViewChains } from './utils/viewChains';
+import { EventRound } from './Context';
+import { TimeRemaining } from './utils/timeRemaining';
 
 function App() {
+  const navigate = useNavigate();
+  const { round, setRound } = EventRound();
   const [discordData, setDiscordData] = useState<DiscordData>()
-  const [avatarSource, setAvatarSource] = useState<string>("");
+  const [avatarSource, setAvatarSource] = useState<string>("../garticBeep.png");
   const admin: Admin = new Admin();
 
   useEffect(() => {
@@ -24,10 +28,43 @@ function App() {
       admin.setDiscordData(discordData);
       (window as any).admin = admin; //expose admin to the console for debugging
     }
-  }, [discordData])
+  }, [discordData]);
+
+  useEffect(() => {
+    if (discordData) {
+      switch (round[1]) {
+        case "start":
+          navigate("/register");
+          break;
+        case "song":
+          navigate("/submitSong");
+          break;
+        case "prompt":
+          navigate("/submitPrompt");
+          break;
+        case "end":
+          navigate("/results");
+          break;
+      }
+    }
+  }, [round, discordData])
+
+  useEffect(() => {
+    fetch('/api/getRound', {
+      headers: {
+        method: 'get',
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then(result => result.json())
+      .then(response => {
+        setRound([response.round, response.type, response.utc]);
+      })
+      .catch(console.error);
+  }, [])
 
   return (
-    <BrowserRouter>
+    <>
       <div id="title">
           <h1>Gartic Beep!</h1>
           <img id="logo" src="../garticBeep.png" />
@@ -40,7 +77,7 @@ function App() {
             <img id="avatar" src={avatarSource} />
           </div>
         )}
-        <h3 className="blob" id="eventTime">The event will start in <span id="timeLeft">XX days</span></h3>
+        <TimeRemaining />
       </div>
 
       <Routes>
@@ -54,26 +91,23 @@ function App() {
           </>)}
         <Route path="*" element={<Redirect />} />
       </Routes>
-      {discordData && (<>
-        <br />
-        <div>
-          <NavLink id="logout" to="" className="blob">
-            <span>Logout</span>
-          </NavLink>
-        </div>
-      </>)}
+      
 
       <br />
       <footer>
+        {discordData && (
+            <NavLink id="logout" to="" className="blob">
+              <span>Logout</span>
+            </NavLink>)}
           <a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
       </footer>
 
-      <ViewChains />
-
+      { round[1] == "end" &&
+        <ViewChains />
+      }
       <div id="background"></div>
       <FeedbackPrompt timeout={10} />
-
-    </BrowserRouter>
+    </>
   )
 }
 

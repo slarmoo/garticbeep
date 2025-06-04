@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import type { DiscordData } from "../utils/Config";
+import { EventRound } from "../Context";
 
 export function DiscordAuth(props: DiscordAuthProps) {
+    const { round } = EventRound();
     const navigate = useNavigate();
 
     const [discordData, setDiscordData] = useState<DiscordData>();
@@ -23,7 +25,20 @@ export function DiscordAuth(props: DiscordAuthProps) {
             .then(result => result.json())
             .then(response => {
                 setDiscordData(response as DiscordData);
-                navigate("/register");
+                switch (round[1]) {
+                    case "start":
+                        navigate("/register");
+                        break;
+                    case "song":
+                        navigate("/submitSong");
+                        break;
+                    case "prompt":
+                        navigate("/submitPrompt");
+                        break;
+                    case "end":
+                        navigate("/results");
+                        break;
+                  }
             })
     }, [])
 
