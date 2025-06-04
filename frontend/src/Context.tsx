@@ -1,5 +1,6 @@
 // VisibilityContext.tsx
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { type roundData } from "./utils/Config";
 
 type DisplayPromptContextType = {
     showPrompt: boolean;
@@ -12,8 +13,8 @@ type PromptTextContextType = {
 }
 
 type EventRoundContextType = {
-    round: [number, string, number];
-    setRound: (value: [number, string, number]) => void;
+    round: roundData;
+    setRound: (value: roundData) => void;
 }
 
 const DisplayPromptContext = createContext<DisplayPromptContextType | undefined>(undefined);
@@ -23,7 +24,7 @@ const EventRoundContext = createContext<EventRoundContextType | undefined>(undef
 export function ContextProvider({ children }: { children: ReactNode }) {
     const [showPrompt, setShowPrompt] = useState<boolean>(false);
     const [promptText, setPromptText] = useState<string>("");
-    const [round, setRound] = useState<[number, string, number]>([1, "start", 0]);
+    const [round, setRound] = useState<roundData>({number: 1, type: "start", utc: 0});
 
     return (
         <DisplayPromptContext.Provider value={{ showPrompt, setShowPrompt }}>

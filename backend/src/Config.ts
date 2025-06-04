@@ -14,5 +14,6 @@ export interface chainLink {
 export interface user {
     user: string,
     onHold: boolean,
-    strikes: number
+    strikes: number,
+    profilePictureURL: string
 }

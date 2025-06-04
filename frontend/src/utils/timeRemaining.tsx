@@ -18,7 +18,7 @@ export function TimeRemaining() {
     }, [])
 
     useEffect(() => {
-        let timeDiff: number = round[2] - currentTime;
+        let timeDiff: number = round.utc - currentTime;
         timeDiff = Math.floor(timeDiff / 1000);
         const seconds: number = timeDiff % 60;
         timeDiff = Math.floor(timeDiff / 60);
@@ -50,7 +50,17 @@ export function TimeRemaining() {
         setTimeLeftString(timeString);
     }, [currentTime])
 
-    return (
-        <h3 className="blob" id="eventTime">The event will start in <span id="timeLeft">{timeLeftString}</span></h3>
-    )
+    switch (round.type) {
+        case "start": return (
+            <h3 className="blob" id="eventTime">The event will start in <span id="timeLeft">{timeLeftString}</span></h3>
+        )
+        case "song": 
+        case "prompt": return (
+            <h3 className="blob" id="eventTime">The next round will start in <span id="timeLeft">{timeLeftString}</span></h3>
+        )
+        case "end": return (
+            <h3 className="blob" id="eventTime">The event is over! Please check out the results below</h3>
+        )
+    }
+    
 }

@@ -32,7 +32,7 @@ function App() {
 
   useEffect(() => {
     if (discordData) {
-      switch (round[1]) {
+      switch (round.type) {
         case "start":
           navigate("/register");
           break;
@@ -58,7 +58,7 @@ function App() {
     })
       .then(result => result.json())
       .then(response => {
-        setRound([response.round, response.type, response.utc]);
+        setRound({ number: response.round, type: response.type, utc: response.utc });
       })
       .catch(console.error);
   }, [])
@@ -102,7 +102,7 @@ function App() {
           <a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
       </footer>
 
-      { round[1] == "end" &&
+      { round.type == "end" &&
         <ViewChains />
       }
       <div id="background"></div>

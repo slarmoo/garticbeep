@@ -4,3 +4,9 @@ export interface DiscordData {
     avatar: string,
     id: string
 }
+
+export interface roundData {
+    number: number,
+    type: string,
+    utc: number
+}

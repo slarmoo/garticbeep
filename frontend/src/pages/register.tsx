@@ -13,7 +13,10 @@ export function Register(props: RegisterProps) {
         if (promptElement && statusElement) {
             fetch("/api/startchain", {
                 method: 'post',
-                body: JSON.stringify({ username: props.discordData.username, onhold: statusElement.value, prompt: promptElement.value }),
+                body: JSON.stringify({
+                    username: props.discordData.username, onhold: statusElement.value, prompt: promptElement.value,
+                    url: `https://cdn.discordapp.com/avatars/${props.discordData.id}/${props.discordData.avatar}.jpg`
+                }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
                 },

@@ -16,10 +16,10 @@ const userCollection = client.db('garticbeep').collection<user>('users');
     process.exit(1);
 });
 
-async function startChain(username: string, prompt: string, onHold: boolean) {
+async function startChain(username: string, prompt: string, onHold: boolean, pfURL: string) {
     await chainCollection.findOneAndDelete({ "chain.promptGiver": username });
     await userCollection.findOneAndDelete({ "user": username });
-    await userCollection.insertOne({ user: username, onHold: onHold, strikes: 0 });
+    await userCollection.insertOne({ user: username, onHold: onHold, strikes: 0, profilePictureURL: pfURL });
     return await chainCollection.insertOne({ chain: [{ promptGiver: username, prompt: prompt } as chainLink] } as chain);
 }
 
@@ -249,7 +249,7 @@ async function generateDebugChains(onHold: boolean) { //testing
     for (let i: number = 0; i < alphabet.length; i++) {
         const letter: string = alphabet[i];
         const oh: boolean = onHold && Math.random() < 0.2 ? true : false
-        userCollection.insertOne({ user: letter, onHold: oh, strikes: 0 });
+        userCollection.insertOne({ user: letter, onHold: oh, strikes: 0, profilePictureURL: "" });
         statuses[i] = await chainCollection.insertOne({ chain: [{ promptGiver: letter, prompt: letter + "'s prompt" } as chainLink] } as chain);
     }
     return statuses;

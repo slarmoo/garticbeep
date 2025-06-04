@@ -27,7 +27,7 @@ app.get('/', (_req, res) => {
 });
 
 apiRouter.post("/startChain", (request, response) => {
-    startChain(request.body.username, request.body.prompt, request.body.onhold);
+    startChain(request.body.username, request.body.prompt, request.body.onhold, request.body.url);
     response.status(200);
 })
 
