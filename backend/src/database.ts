@@ -72,26 +72,39 @@ function appendPrompt(round: number, username: string, prompt: string) {
     );
 }
 
-function getPrompt(username: string) {
-    return chainCollection.findOne({
+async function getPrompt(username: string, round: number) {
+    const query = {
         $expr: {
             $eq: [
-                { $arrayElemAt: ["$chain.songmaker", -1] }, 
-                username 
+                { $arrayElemAt: ["$chain.songmaker", -1] },
+                username
             ]
         }
-    });
+    };
+    let chain: chain | null = await chainCollection.findOne(query);
+    console.log(chain)
+    if (chain == null) {
+        await randomizeChains(round, false);
+        chain = await chainCollection.findOne(query);
+    }
+    return chain?.chain;
 }
 
-function getSong(username: string) {
-    return chainCollection.findOne({
+async function getSong(username: string, round: number) {
+    const query = {
         $expr: {
             $eq: [
                 { $arrayElemAt: ["$chain.promptGiver", -1] },
                 username
             ]
         }
-    });
+    };
+    let chain: chain | null = await chainCollection.findOne(query);
+    if (chain == null || chain.chain.length != round) {
+        await randomizeChains(round, true);
+        chain = await chainCollection.findOne(query);
+    }
+    return chain?.chain;
 }
 
 async function isOnHold(username: string) {
@@ -123,8 +136,8 @@ async function getAllSongs() {
 //shuffle list
 //then for each chain where there was a submission, tentatively grab the first entry in the list where it is someone not in the current chain
 //repeat above two steps until it works
-async function randomizeChains(isNewRound: boolean) {
-    const round: number = await getRoundNumber();
+async function randomizeChains(round: number, isNewRound: boolean) {
+    // const round: number = await getRoundNumber();
     const chains: chain[] = await getAllSongs();
     let submittees: string[] = [];
     //shuffle function
@@ -140,17 +153,18 @@ async function randomizeChains(isNewRound: boolean) {
         //get submittees
         for (let i: number = 0; i < chains.length; i++) {
             const chain: chainLink[] = chains[i].chain;
-            if (chain.length == round && chain[round - 1].song) {
-                submittees.push(chain[round - 1].songmaker!);
+            if (chain.length == (round-1) && chain[round - 2].song) {
+                submittees.push(chain[round - 2].songmaker!);
             }
         }
+        console.log(submittees);
         let success: boolean = false;
         while (!success) {
             shuffle();
             const promptGivers: string[] = submittees.slice();
             for (let i: number = 0; i < chains.length; i++) {
                 const chain: chainLink[] = chains[i].chain;
-                if (chain.length == round && chain[chain.length - 1].song) {
+                if (chain.length == (round - 1) && chain[chain.length - 1].song) {
                     const submittee: string = promptGivers[promptGivers.length - 1];
                     let found: boolean = false;
 
@@ -172,7 +186,7 @@ async function randomizeChains(isNewRound: boolean) {
             } else {
                 for (let i = 0; i < chains.length; i++) {
                     const chain = chains[i].chain;
-                    if (chain.length > round) {
+                    if (chain.length > (round - 1)) {
                         chain.pop();
                     }
                 }
@@ -182,7 +196,7 @@ async function randomizeChains(isNewRound: boolean) {
         //get submittees
         for (let i: number = 0; i < chains.length; i++) {
             const chain: chainLink[] = chains[i].chain;
-            if (chain.length == round && !(await isOnHold(chain[round - 1].promptGiver)) && chain[round - 1].prompt) { //don't add someone if they're on hold
+            if (chain.length == round && chain[round - 1].prompt && !(await isOnHold(chain[round - 1].promptGiver))) { //don't add someone if they're on hold
                 submittees.push(chain[round - 1].promptGiver);
             }
         }
@@ -262,7 +276,7 @@ async function generateDebugSongs(percentSubmitted: number = 100) { //testing
     for (let i: number = 0; i < chains.length; i++) {
         if (chains[i].chain[round - 1]) {
             const letter: string = chains[i].chain[round - 1].songmaker!;
-            const songLink: string = letter + "'s link round " + round;
+            const songLink: string = "https://slarmoo.github.io/slarmoosbox/website/";
             const songName: string = letter + "'s songName round " + round;
             if (Math.random() * 100 <= percentSubmitted) {
                 statuses[i] = await chainCollection.updateOne(

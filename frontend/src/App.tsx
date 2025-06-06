@@ -27,6 +27,9 @@ function App() {
       setAvatarSource(`https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.jpg`);
       admin.setDiscordData(discordData);
       (window as any).admin = admin; //expose admin to the console for debugging
+      const date = new Date();
+      const nextDate = new Date(date.getTime() + 1000 * 60 * 60 * 2);
+      document.cookie = "auth=" + JSON.stringify(discordData) + "; expires=" + nextDate.toUTCString() + "; path=/;";
     }
   }, [discordData]);
 
@@ -50,9 +53,14 @@ function App() {
   }, [round, discordData])
 
   useEffect(() => {
-    fetch('/api/getRound', {
+    let cookies: string = document.cookie;
+    if (cookies.indexOf("auth=") > -1) {
+      const auth: DiscordData = JSON.parse(cookies.replace("auth=", ""));
+      setDiscordData(auth);
+    }
+  fetch('/api/getRound', {
+      method: 'get',
       headers: {
-        method: 'get',
         'Content-type': 'application/json; charset=UTF-8',
       },
     })
@@ -85,8 +93,8 @@ function App() {
         <Route path="/auth/discord" element={<DiscordAuth getDiscordData={setDiscordData} />} />
         {discordData && (<>
           <Route path="/register" element={<Register discordData={discordData} />} />
-          <Route path="/submitSong" element={<SubmitSong />} />
-          <Route path="/submitPrompt" element={<SubmitPrompt />} />
+          <Route path="/submitSong" element={<SubmitSong discordData={discordData} />} />
+          <Route path="/submitPrompt" element={<SubmitPrompt discordData={discordData} />} />
           <Route path="/onHold" element={<OnHold />} />
           </>)}
         <Route path="*" element={<Redirect />} />

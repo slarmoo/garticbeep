@@ -11,10 +11,11 @@ export function Register(props: RegisterProps) {
         const statusElement: HTMLInputElement = document.getElementById('statusInput') as HTMLInputElement;
         const promptElement: HTMLInputElement = document.getElementById('initialPrompt') as HTMLInputElement;
         if (promptElement && statusElement) {
+            const isOnHold: boolean = statusElement.value == "true";
             fetch("/api/startchain", {
                 method: 'post',
                 body: JSON.stringify({
-                    username: props.discordData.username, onhold: statusElement.value, prompt: promptElement.value,
+                    username: props.discordData.username, onhold: isOnHold, prompt: promptElement.value,
                     url: `https://cdn.discordapp.com/avatars/${props.discordData.id}/${props.discordData.avatar}.jpg`
                 }),
                 headers: {

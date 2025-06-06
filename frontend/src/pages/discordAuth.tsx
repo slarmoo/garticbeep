@@ -24,8 +24,14 @@ export function DiscordAuth(props: DiscordAuthProps) {
         })
             .then(result => result.json())
             .then(response => {
-                setDiscordData(response as DiscordData);
-                switch (round[1]) {
+                setDiscordData(
+                    {
+                        username: response.username,
+                        discriminator: response.discriminator,
+                        avatar: response.avatar,
+                        id: response.id
+                    });
+                switch (round.type) {
                     case "start":
                         navigate("/register");
                         break;

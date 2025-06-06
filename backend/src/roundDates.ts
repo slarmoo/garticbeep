@@ -2,9 +2,9 @@ export class roundDates {
     readonly year = 2025
 
     readonly eventDates: Round[] = [
-        { round: 1, time: [5, 1, 0], type: "start" }, 
-        { round: 1, time: [6, 3, 0], type: "song" }, 
-        { round: 2, time: [6, 6, 0], type: "prompt" }, 
+        { round: 1, time: [4, 1, 0], type: "start" }, 
+        { round: 1, time: [4, 3, 0], type: "song" }, 
+        { round: 2, time: [4, 6, 0], type: "prompt" }, 
         { round: 2, time: [6, 9, 0], type: "song" }, 
         { round: 3, time: [6, 11, 0], type: "prompt" }, 
         { round: 3, time: [6, 14, 0], type: "song" },
@@ -24,7 +24,6 @@ export class roundDates {
         let currentRound: Round = this.eventDates[0];
         for (let i: number = 0; i < this.eventDates.length; i++) {
             const round: Round = this.eventDates[i];
-            console.log(this.timeToUTC(round.time), currentTime)
             if (this.timeToUTC(round.time) < currentTime) {
                 currentRound = { round: round.round, time: this.eventDates[Math.min(i + 1, this.eventDates.length - 1)].time, type: round.type }
             }

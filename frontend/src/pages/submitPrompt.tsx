@@ -1,12 +1,62 @@
-import { Hovertext } from "../utils/hovertext"
-import { RoundNumber } from "../utils/roundNumber"
+import { Hovertext } from "../utils/hovertext";
+import { RoundNumber } from "../utils/roundNumber";
+import type { DiscordData } from "../utils/Config";
+import { EventRound, displayPrompt, displayPromptText } from "../Context";
+import { useState, useEffect } from "react";
 
-export function SubmitPrompt() {
+export function SubmitPrompt(props: SubmitPromptProps) {
+    const { round } = EventRound();
+    const { setShowPrompt } = displayPrompt();
+    const { setPromptText } = displayPromptText();
+    const [songLink, setSongLink] = useState<string>("");
+    const [songName, setSongName] = useState<string>("");
+
+    function submitPrompt() {
+        const promptElement = document.getElementById('promptInput') as HTMLInputElement;
+        if (promptElement) {
+            if (promptElement.value != "") {
+                fetch("/api/appendPrompt", {
+                    method: 'post',
+                    body: JSON.stringify({ username: props.discordData.username, round: round.number, prompt: promptElement.value }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                }).catch(console.error);
+                setPromptText("Prompt Submitted!");
+                setShowPrompt(true);
+            } else {
+                setPromptText("Please include a prompt");
+                setShowPrompt(true);
+            }
+
+        }
+    }
+
+    useEffect(() => {
+        fetch("/api/getSong", {
+            method: 'post',
+            body: JSON.stringify({ username: props.discordData.username, round: round }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+        .then(result => result.json())
+        .then(response => {
+            setSongLink(response.link);
+            setSongName(response.name);
+        })
+        .catch(console.error);
+    }, [])
+
+    useEffect(() => {
+        console.log(songLink, songName)
+    }, [songLink, songName])
+    
     return (   
         <div id="formWrapper">
             <div className="blob">
                 <RoundNumber />
-                <h4>Song: <a id="songDisplay" target="_blank">Link</a></h4>
+                <h4>Song: <a id="songDisplay" target="_blank" href={songLink}>{songName}</a></h4>
             </div>
             <div className="blob">
                 <div>
@@ -25,6 +75,6 @@ export function SubmitPrompt() {
     )
 }
 
-function submitPrompt() {
-
+interface SubmitPromptProps {
+    discordData: DiscordData
 }
