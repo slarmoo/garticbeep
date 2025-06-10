@@ -33,24 +33,22 @@ export function SubmitPrompt(props: SubmitPromptProps) {
     }
 
     useEffect(() => {
-        fetch("/api/getSong", {
-            method: 'post',
-            body: JSON.stringify({ username: props.discordData.username, round: round }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-        .then(result => result.json())
-        .then(response => {
-            setSongLink(response.link);
-            setSongName(response.name);
-        })
-        .catch(console.error);
-    }, [])
-
-    useEffect(() => {
-        console.log(songLink, songName)
-    }, [songLink, songName])
+        if(round.type == "prompt") {
+            fetch("/api/getSong", {
+                method: 'post',
+                body: JSON.stringify({ username: props.discordData.username, round: round }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(result => result.json())
+            .then(response => {
+                setSongLink(response.link);
+                setSongName(response.name);
+            })
+            .catch(console.error);
+        }
+    }, [round])
     
     return (   
         <div id="formWrapper">

@@ -3,6 +3,7 @@ import cors from 'cors';
 import { startChain, appendSong, appendPrompt, getAllSongs, getRoundNumber, getPrompt, getSong, randomizeChains, deleteLastRound, isOnHold, generateDebugChains, generateDebugSongs, generateDebugPrompts } from './database';
 import { chain, chainLink } from './Config';
 import { roundDates } from './roundDates';
+import { ChildProcess } from 'child_process';
 const adminConfig = require("./adminConfig.json");
 
 const app = express();
@@ -58,9 +59,9 @@ apiRouter.post("/getSong", async (request, response) => {
     const roundNumber = dates.findCurrentRound().round;
     const song = await getSong(request.body.username, roundNumber);
     if(song) {
-        const chainLink: chainLink = song[request.body.round - 2];
+        const chainLink: chainLink = song[roundNumber - 2];
         const link: string = chainLink.song || "";
-        let name: string | undefined = song[request.body.round - 2].songName;
+        let name: string | undefined = song[roundNumber - 2].songName;
         if (!name) {
             name = "Untitled";
         }

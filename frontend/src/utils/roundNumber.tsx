@@ -7,9 +7,9 @@ export function RoundNumber(props: RoundNumberProps) {
 
 
     useEffect(() => {
-        setRoundDisplay(round[0] > 0 ? round[0] + "" : "");
+        setRoundDisplay(round.number > 0 ? round.number + "" : "");
         if (props.getRoundNumber) {
-            props.getRoundNumber(round[0]);
+            props.getRoundNumber(round.number);
         }
     }, [round])
 
