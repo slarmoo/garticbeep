@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import type { DiscordData } from "../utils/Config";
-import { EventRound } from "../Context";
+// import { EventRound } from "../Context";
 
 export function DiscordAuth(props: DiscordAuthProps) {
-    const { round } = EventRound();
+    // const { round } = EventRound();
     const navigate = useNavigate();
 
     const [discordData, setDiscordData] = useState<DiscordData>();
@@ -31,22 +31,33 @@ export function DiscordAuth(props: DiscordAuthProps) {
                         avatar: response.avatar,
                         id: response.id
                     });
-                switch (round.type) {
-                    case "start":
-                        navigate("/register");
-                        break;
-                    case "song":
-                        navigate("/submitSong");
-                        break;
-                    case "prompt":
-                        navigate("/submitPrompt");
-                        break;
-                    case "end":
-                        navigate("/results");
-                        break;
-                  }
+                })
+            .then(() => fetch('/api/getRound', {
+                method: 'get',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
             })
-    }, [])
+        )
+        .then(result => result.json())
+        .then(response => { return { number: response.round, type: response.type, utc: response.utc } })
+        .then(round => {
+            switch (round.type) {
+                case "start":
+                    navigate("/register");
+                    break;
+                case "song":
+                    navigate("/submitSong");
+                    break;
+                case "prompt":
+                    navigate("/submitPrompt");
+                    break;
+                case "end":
+                    navigate("/results");
+                    break;
+            }
+        })
+    })
 
     useEffect(() => {
         if (discordData) {

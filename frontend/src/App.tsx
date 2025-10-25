@@ -58,6 +58,7 @@ function App() {
       const auth: DiscordData = JSON.parse(cookies.replace("auth=", ""));
       setDiscordData(auth);
     }
+    console.log("running")
   fetch('/api/getRound', {
       method: 'get',
       headers: {
@@ -67,6 +68,7 @@ function App() {
       .then(result => result.json())
       .then(response => {
         setRound({ number: response.round, type: response.type, utc: response.utc });
+        console.log(round)
       })
       .catch(console.error);
   }, [])

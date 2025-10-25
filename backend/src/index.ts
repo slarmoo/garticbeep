@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import { startChain, appendSong, appendPrompt, getAllSongs, getRoundNumber, getPrompt, getSong, randomizeChains, deleteLastRound, isOnHold, generateDebugChains, generateDebugSongs, generateDebugPrompts } from './database';
+import { DB } from './database';
 import { chain, chainLink } from './Config';
 import { roundDates } from './roundDates';
-import { ChildProcess } from 'child_process';
 const adminConfig = require("./adminConfig.json");
 
 const app = express();
 const port: number = 3000;
 const dates: roundDates = new roundDates();
+const db = new DB();
 
 const authCookieName: string = 'token';
 
@@ -27,26 +27,32 @@ app.get('/', (_req, res) => {
     res.send('Hello');
 });
 
+apiRouter.use((req, res, next) => {
+    console.log(req.url, req.params, req.body)
+    
+    next()
+})
+
 apiRouter.post("/startChain", (request, response) => {
-    startChain(request.body.username, request.body.prompt, request.body.onhold, request.body.url);
+    db.startChain(request.body.username, request.body.prompt, request.body.onhold, request.body.url);
     response.status(200);
 })
 
 apiRouter.post("/appendSong", async (request, response) => {
-    const update = await appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
+    const update = await db.appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
     console.log("successfully appended song: ", update);
     response.send({ update: update });
 })
 
 apiRouter.post("/appendPrompt", async (request, response) => {
-    const update = await appendPrompt(request.body.round, request.body.username, request.body.prompt);
+    const update = await db.appendPrompt(request.body.round, request.body.username, request.body.prompt);
     console.log("successfully appended prompt: ", update);
     response.send({ update: update });
 })
 
 apiRouter.post("/getPrompt", async (request, response) => {
     const roundNumber = dates.findCurrentRound().round;
-    const chain = await getPrompt(request.body.username, roundNumber);
+    const chain = await db.getPrompt(request.body.username, roundNumber);
     if (chain) {
         response.send({ prompt: chain[request.body.round - 1].prompt });
     } else {
@@ -55,9 +61,9 @@ apiRouter.post("/getPrompt", async (request, response) => {
 })
 
 apiRouter.post("/getSong", async (request, response) => {
-    console.log("request made");
     const roundNumber = dates.findCurrentRound().round;
-    const song = await getSong(request.body.username, roundNumber);
+    console.log("request");
+    const song = await db.getSong(request.body.username, roundNumber);
     if(song) {
         const chainLink: chainLink = song[roundNumber - 2];
         const link: string = chainLink.song || "";
@@ -77,11 +83,12 @@ apiRouter.post("/getSong", async (request, response) => {
 
 apiRouter.get("/getRound", (request, response) => {
     const round = dates.findCurrentRound();
+    // db.resetCurrentlyRandomizing();
     response.send({ round: round.round, type: round.type, utc: dates.timeToUTC(round.time) });
 })
 
 apiRouter.get("/getAll", async (request, response) => {
-    const chains: chain[] = await getAllSongs();
+    const chains: chain[] = await db.getAllSongs();
     console.log(chains);
     response.send({ chains: chains });
 })
@@ -90,7 +97,7 @@ apiRouter.get("/getAll", async (request, response) => {
 apiRouter.post("/randomizeChains", async (request, response) => {
     if (request.body.username == adminConfig.username && request.body.password == adminConfig.password) {
         const roundNumber = dates.findCurrentRound().round;
-        const randomized = await randomizeChains(roundNumber, request.body.isNewRound);
+        const randomized = await db.randomizeChains(roundNumber, request.body.isNewRound);
         response.send({ r: randomized });
     } else {
         response.status(409).send({ message: "unauthorized access" })
@@ -99,7 +106,7 @@ apiRouter.post("/randomizeChains", async (request, response) => {
 
 apiRouter.post("/deleteLastRound", async (request, response) => {
     if (request.body.username == adminConfig.username && request.body.password == adminConfig.password) {
-        const deleted = await deleteLastRound();
+        const deleted = await db.deleteLastRound();
         response.send({ r: deleted });
     } else {
         response.status(409).send({ message: "unauthorized access" })
@@ -108,7 +115,7 @@ apiRouter.post("/deleteLastRound", async (request, response) => {
 
 apiRouter.post("/generateDebugChains", async (request, response) => {
     if (request.body.username == adminConfig.username && request.body.password == adminConfig.password) {
-        const starts = await generateDebugChains(request.body.onHold);
+        const starts = await db.generateDebugChains(request.body.onHold);
         response.send({ r: starts });
     } else {
         response.status(409).send({ message: "unauthorized access" })
@@ -117,7 +124,7 @@ apiRouter.post("/generateDebugChains", async (request, response) => {
 
 apiRouter.post("/generateDebugSongs", async (request, response) => {
     if (request.body.username == adminConfig.username && request.body.password == adminConfig.password) {
-        const starts = await generateDebugSongs(request.body.percentSubmitted);
+        const starts = await db.generateDebugSongs(request.body.percentSubmitted);
         response.send({ r: starts });
     } else {
         response.status(409).send({ message: "unauthorized access" })
@@ -126,7 +133,7 @@ apiRouter.post("/generateDebugSongs", async (request, response) => {
 
 apiRouter.post("/generateDebugPrompts", async (request, response) => {
     if (request.body.username == adminConfig.username && request.body.password == adminConfig.password) {
-        const starts = await generateDebugPrompts(request.body.percentSubmitted);
+        const starts = await db.generateDebugPrompts(request.body.percentSubmitted);
         response.send({ r: starts });
     } else {
         response.status(409).send({ message: "unauthorized access" })

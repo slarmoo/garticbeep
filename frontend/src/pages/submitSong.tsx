@@ -34,18 +34,20 @@ export function SubmitSong(props: SubmitSongProps) {
     }
 
     useEffect(() => {
-        fetch("/api/getPrompt", {
-            method: 'post',
-            body: JSON.stringify({ username: props.discordData.username, round: round.number }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
-        .then(result => result.json())
-        .then(response => {
-            setSongPrompt(response.prompt);
-        })
-        .catch(console.error);
+        if (round.type == "song") {
+            fetch("/api/getPrompt", {
+                method: 'post',
+                body: JSON.stringify({ username: props.discordData.username, round: round.number }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then(result => result.json())
+                .then(response => {
+                    setSongPrompt(response.prompt);
+                })
+                .catch(console.error);
+        }
     }, [round])
 
     return (   

@@ -1,6 +1,7 @@
 node_modules
 dbConfig.json
 adminConfig.json
+adminFuntions.ts
 .vscode
 
 # Logs

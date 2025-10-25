@@ -2,17 +2,17 @@ export class roundDates {
     readonly year = 2025
 
     readonly eventDates: Round[] = [
-        { round: 1, time: [4, 1, 0], type: "start" }, 
-        { round: 1, time: [4, 3, 0], type: "song" }, 
-        { round: 2, time: [4, 6, 0], type: "prompt" }, 
-        { round: 2, time: [6, 9, 0], type: "song" }, 
-        { round: 3, time: [6, 11, 0], type: "prompt" }, 
-        { round: 3, time: [6, 14, 0], type: "song" },
-        { round: 4, time: [6, 16, 0], type: "prompt" }, 
-        { round: 4, time: [6, 19, 0], type: "song" }, 
-        { round: 5, time: [6, 21, 0], type: "prompt" },
-        { round: 5, time: [6, 24, 0], type: "song" }, 
-        { round: 6, time: [7, 3, 0], type: "end" }, 
+        { round: 1, time: [9, 1, 0], type: "start" }, 
+        { round: 1, time: [9, 3, 0], type: "song" }, 
+        { round: 2, time: [9, 6, 0], type: "prompt" }, 
+        { round: 2, time: [9, 9, 0], type: "song" }, 
+        { round: 3, time: [9, 11, 0], type: "prompt" }, 
+        { round: 3, time: [10, 14, 0], type: "song" },
+        { round: 4, time: [10, 16, 0], type: "prompt" }, 
+        { round: 4, time: [10, 19, 0], type: "song" }, 
+        { round: 5, time: [10, 21, 0], type: "prompt" },
+        { round: 5, time: [10, 24, 0], type: "song" }, 
+        { round: 6, time: [11, 3, 0], type: "end" }, 
     ]
 
     timeToUTC(time: [number, number, number]): number {
@@ -28,6 +28,7 @@ export class roundDates {
                 currentRound = { round: round.round, time: this.eventDates[Math.min(i + 1, this.eventDates.length - 1)].time, type: round.type }
             }
         }
+        console.log(currentRound)
         return currentRound;
     }
 }
