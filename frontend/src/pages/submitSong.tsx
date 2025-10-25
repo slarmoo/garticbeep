@@ -8,7 +8,8 @@ export function SubmitSong(props: SubmitSongProps) {
     const { round } = EventRound();
     const { setShowPrompt } = displayPrompt();
     const { setPromptText } = displayPromptText();
-    const [songPrompt, setSongPrompt] = useState<string>("")
+    const [songPrompt, setSongPrompt] = useState<string>("");
+    const [mods, setMods] = useState<string[]>([]);
 
     function submitSong() {
         const linkElement = document.getElementById('linkInput') as HTMLInputElement;
@@ -16,7 +17,14 @@ export function SubmitSong(props: SubmitSongProps) {
         if (linkElement && songNameElement) {
             const link: string = linkElement.value;
             const songName: string = songNameElement.value;
-            if (link.indexOf("https://") > -1) {
+            let validLink = false;
+            for (const modLink of mods) {
+                if (link.indexOf(modLink) > -1) {
+                    validLink = true;
+                    break;
+                }
+            }
+            if (validLink) {
                 fetch("/api/appendSong", {
                     method: 'post',
                     body: JSON.stringify({ username: props.discordData.username, round: round.number, link: link, name: songName }),
@@ -27,11 +35,23 @@ export function SubmitSong(props: SubmitSongProps) {
                 setPromptText("Song Submitted!");
                 setShowPrompt(true);
             } else {
-                setPromptText("Valid link not included");
+                setPromptText("Please include a link to a mod of beepbox");
                 setShowPrompt(true);
             }
         }
     }
+
+    useEffect(() => {
+        fetch("https://beepbox-launchpad.github.io/mods.json") //this should always be an up to date list of every mod
+        .then(result => result.json())
+        .then(response => {
+            const modLinks = []
+            for (const mod of response) {
+                modLinks.push(mod.website)
+            }
+            setMods(modLinks)
+        })
+    }, [])
 
     useEffect(() => {
         if (round.type == "song") {

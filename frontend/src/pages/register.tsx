@@ -49,7 +49,7 @@ export function Register(props: RegisterProps) {
                 <Hovertext text='You can change your prompt or status as many times as you need up until the deadline' />
             </div>
         </div>
-            </div>
+    </div>
     )
 }
 
