@@ -114,7 +114,7 @@ function App() {
         <ViewChains />
       }
       <div id="background"></div>
-      <FeedbackPrompt timeout={10} />
+      <FeedbackPrompt />
     </>
   )
 }
