@@ -95,7 +95,6 @@ async getPrompt(username: string, round: number) {
         }
       };
     let chain: chain | null = await chainCollection.findOne(query);
-    console.log(chain)
     if (chain == null) {
         await this.randomizeChains(round, false);
         chain = await chainCollection.findOne(query);
@@ -150,10 +149,8 @@ async getAllSongs() {
 //then for each chain where there was a submission, tentatively grab the first entry in the list where it is someone not in the current chain
 //repeat above two steps until it works
 async randomizeChains(round: number, isNewRound: boolean) {
-    console.log("randomizing: ", this.currentlyRandomizing);
     if (this.currentlyRandomizing == true) return; //bad things happen if randomizeChains gets called agian while the first call is still finishing
     this.currentlyRandomizing = true;
-    console.log(this.currentlyRandomizing);
     const chains: chain[] = await this.getAllSongs();
     let submittees: string[] = [];
     //shuffle function
@@ -173,7 +170,6 @@ async randomizeChains(round: number, isNewRound: boolean) {
                 submittees.push(chain[round - 2].songmaker!);
             }
         }
-        console.log(submittees);
         let success: boolean = false;
         while (!success) {
             shuffle();
@@ -216,7 +212,6 @@ async randomizeChains(round: number, isNewRound: boolean) {
                 submittees.push(chain[round - 1].promptGiver);
             }
         }
-        // console.log(submittees);
         let success: boolean = false;
         while (!success) {
             shuffle();
@@ -257,7 +252,6 @@ async randomizeChains(round: number, isNewRound: boolean) {
     setTimeout(() => {
         this.currentlyRandomizing = false;
     }, 10000);
-    console.log(this.currentlyRandomizing);
     return chains;
 }
 
@@ -295,12 +289,10 @@ async generateDebugSongs(percentSubmitted: number = 100) { //testing
     const chains: chain[] = await this.getAllSongs();
     const statuses = [];
     for (let i: number = 0; i < chains.length; i++) {
-        console.log(chains[i].chain[round - 1])
         if (chains[i].chain[round - 1]) {
             const letter: string = chains[i].chain[round - 1].songmaker!;
             const songLink: string = "https://slarmoo.github.io/slarmoosbox/website/";
             const songName: string = letter + "'s songName round " + round;
-            console.log(letter);
             if (Math.random() * 100 <= percentSubmitted) {
                 statuses[i] = await chainCollection.updateOne(
                     {

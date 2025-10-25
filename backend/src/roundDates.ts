@@ -28,7 +28,6 @@ export class roundDates {
                 currentRound = { round: round.round, time: this.eventDates[Math.min(i + 1, this.eventDates.length - 1)].time, type: round.type }
             }
         }
-        console.log(currentRound)
         return currentRound;
     }
 }

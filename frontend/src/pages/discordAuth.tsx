@@ -57,7 +57,7 @@ export function DiscordAuth(props: DiscordAuthProps) {
                     break;
             }
         })
-    })
+    }, [])
 
     useEffect(() => {
         if (discordData) {

@@ -40,13 +40,11 @@ apiRouter.post("/startChain", (request, response) => {
 
 apiRouter.post("/appendSong", async (request, response) => {
     const update = await db.appendSong(request.body.round, request.body.username, request.body.link, request.body.name);
-    console.log("successfully appended song: ", update);
     response.send({ update: update });
 })
 
 apiRouter.post("/appendPrompt", async (request, response) => {
     const update = await db.appendPrompt(request.body.round, request.body.username, request.body.prompt);
-    console.log("successfully appended prompt: ", update);
     response.send({ update: update });
 })
 
@@ -62,7 +60,6 @@ apiRouter.post("/getPrompt", async (request, response) => {
 
 apiRouter.post("/getSong", async (request, response) => {
     const roundNumber = dates.findCurrentRound().round;
-    console.log("request");
     const song = await db.getSong(request.body.username, roundNumber);
     if(song) {
         const chainLink: chainLink = song[roundNumber - 2];
@@ -89,7 +86,6 @@ apiRouter.get("/getRound", (request, response) => {
 
 apiRouter.get("/getAll", async (request, response) => {
     const chains: chain[] = await db.getAllSongs();
-    console.log(chains);
     response.send({ chains: chains });
 })
 
