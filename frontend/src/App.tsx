@@ -97,11 +97,10 @@ function App() {
           <Route path="/submitPrompt" element={<SubmitPrompt discordData={discordData} />} />
           <Route path="/onHold" element={<OnHold />} />
           </>)}
+        {/* <Route path="/results" element={<Results />} />   */}
         <Route path="*" element={<Redirect />} />
       </Routes>
       
-
-      <br />
       <footer>
         {discordData && (
             <NavLink id="logout" to="" className="blob">

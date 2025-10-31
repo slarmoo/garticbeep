@@ -9,7 +9,7 @@ export function SubmitPrompt(props: SubmitPromptProps) {
     const { setShowPrompt } = displayPrompt();
     const { setPromptText } = displayPromptText();
     const [songLink, setSongLink] = useState<string>("");
-    const [songName, setSongName] = useState<string>("");
+    // const [songName, setSongName] = useState<string>("");
 
     function submitPrompt() {
         const promptElement = document.getElementById('promptInput') as HTMLInputElement;
@@ -44,17 +44,35 @@ export function SubmitPrompt(props: SubmitPromptProps) {
             .then(result => result.json())
             .then(response => {
                 setSongLink(response.link);
-                setSongName(response.name);
+                // setSongName(response.name);
             })
             .catch(console.error);
         }
     }, [round])
+
+    const obfuscate = document.getElementsByClassName("obfuscate");
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*-+=_~|/<>";
+    function generateRandomString(length: number) {
+        let string = "";
+        for (let i = 0; i < length; i++) {
+            string += chars[Math.floor(Math.random() * chars.length)]
+        }
+        return string;
+    }
+
+    function obfuscation() {
+        for (const element of obfuscate) {
+            (element  as HTMLElement).innerText = generateRandomString(12);
+        }
+    }
+
+    obfuscation();
     
     return (   
         <div id="formWrapper">
             <div className="blob">
                 <RoundNumber />
-                <h4>Song: <a id="songDisplay" target="_blank" href={songLink}>{songName}</a></h4>
+                <h4>Song: <a id="songDisplay" className="obfuscate" target="_blank" href={songLink}>xxxxx</a></h4>
             </div>
             <div className="blob">
                 <div>

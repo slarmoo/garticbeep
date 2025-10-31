@@ -89,10 +89,6 @@ h1 {
     }
 }
 
-a {
-    color: inherit;
-}
-
 select {
     margin-top: 20px;
     font-size: large;
@@ -112,6 +108,8 @@ select {
     color: inherit;
     font-family: inherit;
     font-size: inherit;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
 .border {
@@ -168,7 +166,19 @@ button:hover {
     background-color: #b030ff;
 }
 
+a {
+    color: inherit;
+}
+
 a:hover {
+    color: #bf6fff;
+}
+
+#login {
+    color: white;
+}
+
+#login:hover {
     color: #bf6fff;
 }
 
@@ -179,6 +189,10 @@ footer {
 
 footer > * {
     margin-right: 1em;
+}
+
+footer>*.blob {
+    margin-top: 0;
 }
 
 .bg-discord-blue {
@@ -193,4 +207,9 @@ footer > * {
 
 .bg-discord-blue:hover {
     background-color: rgb(84 107 188 / var(--tw-bg-opacity));
+}
+
+#loginDiv {
+    margin-top: 2.25rem;
+    margin-bottom: 2.25rem;
 }

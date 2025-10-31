@@ -87,7 +87,7 @@ export function SubmitSong(props: SubmitSongProps) {
                 <div>
                     <label>Song link: </label>
                     <input type="text" className="form" id="linkInput" />
-                    <Hovertext text="Please include a valid shortened link to beepbox or one of its mods" />
+                    <Hovertext text="Please include a valid unshortened link to beepbox or one of its mods" />
                 </div>
                 <div>
                     <button className="blob border" onClick={submitSong}>Submit</button>
