@@ -17,3 +17,10 @@ export interface user {
     strikes: number,
     profilePictureURL: string
 }
+
+export interface job {
+    _id: number,
+    isPrompt: boolean,
+    promptOrUrl: string,
+    timeOpened: number
+}

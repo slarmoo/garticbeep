@@ -78,6 +78,18 @@ apiRouter.post("/getSong", async (request, response) => {
     }
 })
 
+apiRouter.post("/isOnHold", (request, response) => {
+    const isOnHold = db.isOnHold(request.body.username);
+    response.send({ isOnHold: isOnHold })
+})
+
+apiRouter.get("/getJobs", async (request, response) => {
+    const round = dates.findCurrentRound();
+    const jobs = await db.getJobs(round.type, round.round, dates);
+    response.send({ jobs: jobs })
+    
+})
+
 apiRouter.get("/getRound", (request, response) => {
     const round = dates.findCurrentRound();
     // db.resetCurrentlyRandomizing();

@@ -1,5 +1,6 @@
-import { chain, chainLink, user } from "./Config";
+import { chain, chainLink, job, user } from "./Config";
 import { MongoClient } from 'mongodb';
+import { roundDates } from "./roundDates";
 const config = require('./dbConfig.json');
 const url = 'mongodb+srv://' + config.userName + ':' + config.password + '@' + config.hostname;
 const client = new MongoClient(url);
@@ -122,6 +123,44 @@ async getSong(username: string, round: number) {
 async isOnHold(username: string) {
     const user: user | null = await userCollection.findOne({ user: username });
     return user ? user.onHold : false;
+}
+
+async getJobs(roundType: string, roundNumber: number, roundDates: roundDates): Promise<job[]> {
+    console.log("GETTING JOBS");
+    function getTime(roundNum: number, link: chainLink) {
+        const eventDates = roundDates.eventDates
+        return roundDates.timeToUTC(eventDates.find((round) => {
+            return roundNum == round.round && (round.type == link.prompt ? "prompt" : "song");
+        })!.time);
+    }
+    const chains = await this.getAllSongs();
+    const jobs: job[] = [];
+    for (const c of chains) {
+        const chain = c.chain;
+        const link: chainLink = chain[chain.length - 1];
+        if (chain.length < roundNumber || (!link.prompt && roundType == "song")) {
+            console.log("TRUE: ", chain)
+            if (link.prompt) {
+                const j: job = {
+                    _id: c._id || 0,
+                    isPrompt: true,
+                    promptOrUrl: link.prompt,
+                    timeOpened: getTime(chain.length, link)
+                }
+                jobs.push(j);
+            } else {
+                const j: job = {
+                    _id: c._id || 0,
+                    isPrompt: false,
+                    promptOrUrl: chain[chain.length - 2].song!,
+                    timeOpened: getTime(chain.length, link)
+                }
+                jobs.push(j);
+            }
+        }
+    }
+    console.log(jobs);
+    return jobs;
 }
 
 async getRoundNumber() {

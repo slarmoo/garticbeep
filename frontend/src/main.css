@@ -118,6 +118,11 @@ select {
     border-style: solid;
 }
 
+#jobsWrapper {
+    display: grid;
+    
+}
+
 #feedbackWrapper {
     background-color: #b030ffb0;
     opacity: 0;

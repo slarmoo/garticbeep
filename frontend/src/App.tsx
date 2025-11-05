@@ -35,20 +35,35 @@ function App() {
 
   useEffect(() => {
     if (discordData) {
-      switch (round.type) {
-        case "start":
-          navigate("/register");
-          break;
-        case "song":
-          navigate("/submitSong");
-          break;
-        case "prompt":
-          navigate("/submitPrompt");
-          break;
-        case "end":
-          navigate("/results");
-          break;
-      }
+      fetch("/api/isOnHold", {
+        method: 'post',
+        body: JSON.stringify({ username: discordData.username, }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }).then(result => result.json())
+        .then(response => {
+          if (response.isOnHold) {
+            navigate("/onHold")
+          } else {
+            switch (round.type) {
+              case "start":
+                navigate("/register");
+                break;
+              case "song":
+                navigate("/submitSong");
+                break;
+              case "prompt":
+                navigate("/submitPrompt");
+                break;
+              case "end":
+                navigate("/results");
+                break;
+            }
+          }
+      })
+      .catch(console.error);
+      
     }
   }, [round, discordData])
 
