@@ -36,6 +36,7 @@ export function OnHold(props: onHoldProps) {
                     <JobEL job={job} currentTime={props.currentTime} />
                 ))}
             </div>
+            <br />
         </div>
     )
 }

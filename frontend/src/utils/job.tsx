@@ -1,9 +1,12 @@
 import { TimeCounter } from "./timeCounter";
 
 export function JobEL(props: jobProps) {
-    return <div>
+    return <div className="job">
         <h2>
-            JOB: {props.job.isPrompt ? "Submit Song" : "Submit Prompt"} 
+            JOB:  
+        </h2>
+        <h2>
+            {props.job.isPrompt ? "Submit Song" : "Submit Prompt"}
         </h2>
         <TimeCounter utc1={props.currentTime} utc2={props.job.timeOpened} isJob={true} />
         <div>

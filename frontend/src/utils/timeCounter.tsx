@@ -39,7 +39,7 @@ export function TimeCounter(props: timeCounterProps) {
     }, [props.utc1, props.utc2])
 
     if (props.isJob) {
-        return <h3 className="blob" id="eventTime">Time opened: <span id="timeLeft">{timeString}</span></h3>
+        return <h4 className="" id="eventTime">Time opened: <span id="timeLeft">{timeString}</span></h4>
     }
     switch (round.type) {
         case "start": return (
