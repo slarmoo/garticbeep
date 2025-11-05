@@ -16,121 +16,132 @@ import { EventRound } from './Context';
 import { TimeRemaining } from './utils/timeRemaining';
 
 function App() {
-  const navigate = useNavigate();
-  const { round, setRound } = EventRound();
-  const [discordData, setDiscordData] = useState<DiscordData>()
-  const [avatarSource, setAvatarSource] = useState<string>("../garticBeep.png");
-  const admin: Admin = new Admin();
+	const navigate = useNavigate();
+	const { round, setRound } = EventRound();
+	const [discordData, setDiscordData] = useState<DiscordData>()
+	const [avatarSource, setAvatarSource] = useState<string>("../garticBeep.png");
+	const [currentTime, setCurrentTime] = useState<number>(0);
+	const admin: Admin = new Admin();
 
-  useEffect(() => {
-    if (discordData) {
-      setAvatarSource(`https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.jpg`);
-      admin.setDiscordData(discordData);
-      (window as any).admin = admin; //expose admin to the console for debugging
-      const date = new Date();
-      const nextDate = new Date(date.getTime() + 1000 * 60 * 60 * 2);
-      document.cookie = "auth=" + JSON.stringify(discordData) + "; expires=" + nextDate.toUTCString() + "; path=/;";
-    }
-  }, [discordData]);
+	useEffect(() => {
+		if (discordData) {
+			setAvatarSource(`https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.jpg`);
+			admin.setDiscordData(discordData);
+			(window as any).admin = admin; //expose admin to the console for debugging
+			const date = new Date();
+			const nextDate = new Date(date.getTime() + 1000 * 60 * 60 * 2);
+			document.cookie = "auth=" + JSON.stringify(discordData) + "; expires=" + nextDate.toUTCString() + "; path=/;";
+		}
+	}, [discordData]);
 
-  useEffect(() => {
-    if (discordData) {
-      fetch("/api/isOnHold", {
-        method: 'post',
-        body: JSON.stringify({ username: discordData.username, }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      }).then(result => result.json())
-        .then(response => {
-          if (response.isOnHold) {
-            navigate("/onHold")
-          } else {
-            switch (round.type) {
-              case "start":
-                navigate("/register");
-                break;
-              case "song":
-                navigate("/submitSong");
-                break;
-              case "prompt":
-                navigate("/submitPrompt");
-                break;
-              case "end":
-                navigate("/results");
-                break;
-            }
-          }
-      })
-      .catch(console.error);
-      
-    }
-  }, [round, discordData])
+	useEffect(() => {
+		if (discordData) {
+			fetch("/api/isOnHold", {
+				method: 'post',
+				body: JSON.stringify({ username: discordData.username, }),
+				headers: {
+					'Content-type': 'application/json; charset=UTF-8',
+				},
+			}).then(result => result.json())
+				.then(response => {
+					if (response.isOnHold) {
+						navigate("/onHold")
+					} else {
+						switch (round.type) {
+							case "start":
+								navigate("/register");
+								break;
+							case "song":
+								navigate("/submitSong");
+								break;
+							case "prompt":
+								navigate("/submitPrompt");
+								break;
+							case "end":
+								navigate("/results");
+								break;
+						}
+					}
+				})
+				.catch(console.error);
 
-  useEffect(() => {
-    let cookies: string = document.cookie;
-    if (cookies.indexOf("auth=") > -1) {
-      const auth: DiscordData = JSON.parse(cookies.replace("auth=", ""));
-      setDiscordData(auth);
-    }
-  fetch('/api/getRound', {
-      method: 'get',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    })
-      .then(result => result.json())
-      .then(response => {
-        setRound({ number: response.round, type: response.type, utc: response.utc });
-      })
-      .catch(console.error);
-  }, [])
+		}
+	}, [round, discordData])
 
-  return (
-    <>
-      <div id="title">
-          <h1>Gartic Beep!</h1>
-          <img id="logo" src="../garticBeep.png" />
-      </div>
+	useEffect(() => {
+		let cookies: string = document.cookie;
+		if (cookies.indexOf("auth=") > -1) {
+			const auth: DiscordData = JSON.parse(cookies.replace("auth=", ""));
+			setDiscordData(auth);
+		}
+		fetch('/api/getRound', {
+			method: 'get',
+			headers: {
+				'Content-type': 'application/json; charset=UTF-8',
+			},
+		})
+			.then(result => result.json())
+			.then(response => {
+				setRound({ number: response.round, type: response.type, utc: response.utc });
+			})
+			.catch(console.error);
+	}, [])
 
-      <div>
-        {discordData && (
-          <div id="userInfo" className="blob">
-            <p id="username">{discordData?.username}</p>
-            <img id="avatar" src={avatarSource} />
-          </div>
-        )}
-        <TimeRemaining />
-      </div>
+	useEffect(() => {
+		setInterval(() => {
+			const date = new Date();
+			if (date.getTime() != currentTime) {
+				setCurrentTime(date.getTime());
+			}
+		}, 500)
 
-      <Routes>
-        <Route path="/" element={<Unauthenticated />} />
-        <Route path="/auth/discord" element={<DiscordAuth getDiscordData={setDiscordData} />} />
-        {discordData && (<>
-          <Route path="/register" element={<Register discordData={discordData} />} />
-          <Route path="/submitSong" element={<SubmitSong discordData={discordData} />} />
-          <Route path="/submitPrompt" element={<SubmitPrompt discordData={discordData} />} />
-          <Route path="/onHold" element={<OnHold />} />
-          </>)}
-        {/* <Route path="/results" element={<Results />} />   */}
-        <Route path="*" element={<Redirect />} />
-      </Routes>
-      
-      <footer>
-        {discordData && (
-            <NavLink id="logout" to="" className="blob">
-              <span>Logout</span>
-            </NavLink>)}
-          <a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
-      </footer>
+	}, [])
 
-      { round.type == "end" &&
-        <ViewChains />
-      }
-      <div id="background"></div>
-      <FeedbackPrompt />
-    </>
-  )
+	return (
+		<>
+			<div id="title">
+				<h1>Gartic Beep!</h1>
+				<img id="logo" src="../garticBeep.png" />
+			</div>
+
+			<div>
+				{discordData && (
+					<div id="userInfo" className="blob">
+						<p id="username">{discordData?.username}</p>
+						<img id="avatar" src={avatarSource} />
+					</div>
+				)}
+				<TimeRemaining utc1={round.utc} utc2={currentTime} />
+			</div>
+
+			<Routes>
+				<Route path="/" element={<Unauthenticated />} />
+				<Route path="/auth/discord" element={<DiscordAuth getDiscordData={setDiscordData} />} />
+				{discordData && (<>
+					<Route path="/register" element={<Register discordData={discordData} />} />
+					<Route path="/submitSong" element={<SubmitSong discordData={discordData} />} />
+					<Route path="/submitPrompt" element={<SubmitPrompt discordData={discordData} />} />
+					<Route path="/onHold" element={<OnHold />} />
+				</>)}
+				{/* <Route path="/results" element={<Results />} />   */}
+				<Route path="*" element={<Redirect />} />
+			</Routes>
+
+			<footer>
+				{discordData && (
+					<NavLink id="logout" to="" className="blob">
+						<span>Logout</span>
+					</NavLink>)}
+				<a className="blob" href="https://github.com/slarmoo/garticbeep">Github</a>
+			</footer>
+
+			{round.type == "end" &&
+				<ViewChains />
+			}
+			<div id="background"></div>
+			<FeedbackPrompt />
+		</>
+	)
 }
 
 export default App
