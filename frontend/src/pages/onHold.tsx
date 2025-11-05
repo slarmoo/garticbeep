@@ -4,7 +4,7 @@ import { RoundNumber } from "../utils/roundNumber"
 import { useState, useEffect } from "react";
 import { JobEL, type Job } from "../utils/job";
 
-export function OnHold() {
+export function OnHold(props: onHoldProps) {
     const [jobs, setJobs] = useState<Job[]>([]);
 
     useEffect(() => {
@@ -33,10 +33,13 @@ export function OnHold() {
             </div>
             <div id="jobsWrapper">
                 {jobs.map(job => (
-                    <JobEL job={job} />
+                    <JobEL job={job} currentTime={props.currentTime} />
                 ))}
             </div>
         </div>
     )
 }
 
+interface onHoldProps {
+    currentTime: number
+}

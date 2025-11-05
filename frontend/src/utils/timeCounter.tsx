@@ -1,24 +1,12 @@
 import { useState, useEffect } from "react"
 import { EventRound } from "../Context";
 
-export function TimeRemaining() {
+export function TimeCounter(props: timeCounterProps) {
     const { round }= EventRound();
-    const [currentTime, setCurrentTime] = useState<number>(0);
-    const [timeLeftString, setTimeLeftString] = useState<string>("");
-    
+    const [timeString, setTimeLeftString] = useState<string>("");
 
     useEffect(() => {
-        setInterval(() => {
-            const date = new Date();
-            if (date.getTime() != currentTime) {
-                setCurrentTime(date.getTime());
-            }
-        }, 500)
-        
-    }, [])
-
-    useEffect(() => {
-        let timeDiff: number = round.utc - currentTime;
+        let timeDiff: number = props.utc1 - props.utc2;
         timeDiff = Math.floor(timeDiff / 1000);
         const seconds: number = timeDiff % 60;
         timeDiff = Math.floor(timeDiff / 60);
@@ -48,19 +36,27 @@ export function TimeRemaining() {
             
 
         setTimeLeftString(timeString);
-    }, [currentTime])
+    }, [props.utc1, props.utc2])
 
+    if (props.isJob) {
+        return <h3 className="blob" id="eventTime">Time opened: <span id="timeLeft">{timeString}</span></h3>
+    }
     switch (round.type) {
         case "start": return (
-            <h3 className="blob" id="eventTime">The event will start in <span id="timeLeft">{timeLeftString}</span></h3>
+            <h3 className="blob" id="eventTime">The event will start in <span id="timeLeft">{timeString}</span></h3>
         )
         case "song": 
         case "prompt": return (
-            <h3 className="blob" id="eventTime">The next round will start in <span id="timeLeft">{timeLeftString}</span></h3>
+            <h3 className="blob" id="eventTime">The next round will start in <span id="timeLeft">{timeString}</span></h3>
         )
         case "end": return (
             <h3 className="blob" id="eventTime">The event is over! Please check out the results below</h3>
         )
-    }
-    
+    }    
+}
+
+interface timeCounterProps {
+    utc1: number,
+    utc2: number,
+    isJob?: boolean
 }

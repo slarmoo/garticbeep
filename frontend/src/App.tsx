@@ -13,7 +13,7 @@ import { FeedbackPrompt } from './utils/feedbackPrompt';
 import { Admin } from './utils/adminFuntions';
 import { ViewChains } from './utils/viewChains';
 import { EventRound } from './Context';
-import { TimeRemaining } from './utils/timeRemaining';
+import { TimeCounter } from './utils/timeCounter';
 
 function App() {
 	const navigate = useNavigate();
@@ -111,7 +111,7 @@ function App() {
 						<img id="avatar" src={avatarSource} />
 					</div>
 				)}
-				<TimeRemaining utc1={round.utc} utc2={currentTime} />
+				<TimeCounter utc1={round.utc} utc2={currentTime} />
 			</div>
 
 			<Routes>
@@ -121,7 +121,7 @@ function App() {
 					<Route path="/register" element={<Register discordData={discordData} />} />
 					<Route path="/submitSong" element={<SubmitSong discordData={discordData} />} />
 					<Route path="/submitPrompt" element={<SubmitPrompt discordData={discordData} />} />
-					<Route path="/onHold" element={<OnHold />} />
+					<Route path="/onHold" element={<OnHold currentTime={currentTime} />} />
 				</>)}
 				{/* <Route path="/results" element={<Results />} />   */}
 				<Route path="*" element={<Redirect />} />
