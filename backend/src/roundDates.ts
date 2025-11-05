@@ -2,11 +2,11 @@ export class roundDates {
     readonly year = 2025
 
     readonly eventDates: Round[] = [
-        { round: 1, time: [9, 1, 0], type: "start" }, 
-        { round: 1, time: [9, 3, 0], type: "song" }, 
-        { round: 2, time: [9, 6, 0], type: "prompt" }, 
-        { round: 2, time: [10, 9, 0], type: "song" }, 
-        { round: 3, time: [9, 11, 0], type: "prompt" }, 
+        { round: 1, time: [10, 1, 0], type: "start" }, 
+        { round: 1, time: [10, 2, 0], type: "song" }, 
+        { round: 2, time: [10, 3, 0], type: "prompt" }, 
+        { round: 2, time: [10, 4, 0], type: "song" }, 
+        { round: 3, time: [10, 11, 0], type: "prompt" }, 
         { round: 3, time: [9, 14, 0], type: "song" },
         { round: 4, time: [9, 16, 0], type: "prompt" }, 
         { round: 4, time: [9, 19, 0], type: "song" }, 

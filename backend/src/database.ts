@@ -126,12 +126,13 @@ async isOnHold(username: string) {
 }
 
 async getJobs(roundType: string, roundNumber: number, roundDates: roundDates): Promise<job[]> {
-    console.log("GETTING JOBS");
     function getTime(roundNum: number, link: chainLink) {
         const eventDates = roundDates.eventDates
-        return roundDates.timeToUTC(eventDates.find((round) => {
-            return roundNum == round.round && (round.type == link.prompt ? "prompt" : "song");
-        })!.time);
+        const r = (eventDates.find((round) => {
+            return roundNum == round.round &&
+                (round.type.includes(link.prompt ? round.round == 1 ? "start" : "prompt" : "song"));
+        })!.time)
+        return roundDates.timeToUTC(r);
     }
     const chains = await this.getAllSongs();
     const jobs: job[] = [];
@@ -139,7 +140,6 @@ async getJobs(roundType: string, roundNumber: number, roundDates: roundDates): P
         const chain = c.chain;
         const link: chainLink = chain[chain.length - 1];
         if (chain.length < roundNumber || (!link.prompt && roundType == "song")) {
-            console.log("TRUE: ", chain)
             if (link.prompt) {
                 const j: job = {
                     _id: c._id || 0,
@@ -159,7 +159,6 @@ async getJobs(roundType: string, roundNumber: number, roundDates: roundDates): P
             }
         }
     }
-    console.log(jobs);
     return jobs;
 }
 

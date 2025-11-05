@@ -1,3 +1,4 @@
+import { Obfuscated } from "./obfuscated";
 import { TimeCounter } from "./timeCounter";
 
 export function JobEL(props: jobProps) {
@@ -10,7 +11,8 @@ export function JobEL(props: jobProps) {
         </h2>
         <TimeCounter utc1={props.currentTime} utc2={props.job.timeOpened} isJob={true} />
         <div>
-            {props.job.isPrompt ? "Prompt: " : "Song: "} {props.job.promptOrUrl}
+            {props.job.isPrompt ? "Prompt: " + props.job.promptOrUrl :
+                (<>Song: <a href={props.job.promptOrUrl} target="_blank" ><Obfuscated /></a></>)}
         </div>
     </div>
 }

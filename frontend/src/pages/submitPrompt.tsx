@@ -3,6 +3,7 @@ import { RoundNumber } from "../utils/roundNumber";
 import type { DiscordData } from "../utils/Config";
 import { EventRound, displayPrompt, displayPromptText } from "../Context";
 import { useState, useEffect } from "react";
+import { Obfuscated } from "../utils/obfuscated";
 
 export function SubmitPrompt(props: SubmitPromptProps) {
     const { round } = EventRound();
@@ -49,30 +50,12 @@ export function SubmitPrompt(props: SubmitPromptProps) {
             .catch(console.error);
         }
     }, [round])
-
-    const obfuscate = document.getElementsByClassName("obfuscate");
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*-+=_~|/<>";
-    function generateRandomString(length: number) {
-        let string = "";
-        for (let i = 0; i < length; i++) {
-            string += chars[Math.floor(Math.random() * chars.length)]
-        }
-        return string;
-    }
-
-    function obfuscation() {
-        for (const element of obfuscate) {
-            (element  as HTMLElement).innerText = generateRandomString(12);
-        }
-    }
-
-    obfuscation();
     
     return (   
         <div id="formWrapper">
             <div className="blob">
                 <RoundNumber />
-                <h4>Song: <a id="songDisplay" className="obfuscate" target="_blank" href={songLink}>xxxxx</a></h4>
+                <h4>Song: <a id="songDisplay" target="_blank" href={songLink}><Obfuscated /></a></h4>
             </div>
             <div className="blob">
                 <div>
