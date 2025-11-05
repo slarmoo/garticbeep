@@ -3,21 +3,23 @@ import cors from 'cors';
 import { DB } from './database';
 import { chain, chainLink } from './Config';
 import { roundDates } from './roundDates';
+import path from "path";
 const adminConfig = require("./adminConfig.json");
+const origin = require("./origin.json")
 
 const app = express();
 const port: number = 3000;
 const dates: roundDates = new roundDates();
 const db = new DB();
 
-const authCookieName: string = 'token';
-
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: origin.origin,
     credentials: true,
 }));
+
+app.use(express.static(path.join(__dirname, "public")));
 
 // Router for service endpoints
 const apiRouter = express.Router();
@@ -150,5 +152,5 @@ apiRouter.post("/generateDebugPrompts", async (request, response) => {
 
 //final
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running on port ${port}`);
 });

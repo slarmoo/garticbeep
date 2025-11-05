@@ -19,7 +19,7 @@ function App() {
 	const navigate = useNavigate();
 	const { round, setRound } = EventRound();
 	const [discordData, setDiscordData] = useState<DiscordData>()
-	const [avatarSource, setAvatarSource] = useState<string>("../garticBeep.png");
+	const [avatarSource, setAvatarSource] = useState<string>("./garticBeep.png");
 	const [currentTime, setCurrentTime] = useState<number>(0);
 	const admin: Admin = new Admin();
 

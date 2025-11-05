@@ -3,6 +3,7 @@ dbConfig.json
 adminConfig.json
 adminFuntions.ts
 .vscode
+build
 
 # Logs
 logs
